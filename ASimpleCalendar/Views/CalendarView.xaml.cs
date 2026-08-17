@@ -22,7 +22,7 @@ public partial class CalendarView : UserControl
     {
         var dialog = new EventDialog(initialDate: _viewModel.SelectedDate ?? DateTime.Today)
         {
-            Owner = Window.GetWindow(this)
+            Owner = Window.GetWindow(this)!
         };
 
         if (dialog.ShowDialog() == true && dialog.Result is not null)
@@ -40,7 +40,7 @@ public partial class CalendarView : UserControl
 
         var dialog = new EventDialog(ev)
         {
-            Owner = Window.GetWindow(this)
+            Owner = Window.GetWindow(this)!
         };
 
         if (dialog.ShowDialog() == true && dialog.Result is not null)

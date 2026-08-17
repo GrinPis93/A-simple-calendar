@@ -1,20 +1,108 @@
 <UserControl x:Class="ASimpleCalendar.Views.NotesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <Grid Margin="24">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <ui:SymbolIcon Symbol="Document24" FontSize="48" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
-            <TextBlock Text="Заметки"
-                       FontSize="28"
-                       FontWeight="SemiBold"
-                       Margin="0,16,0,0"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="Здесь появятся заметки с тегами, цветами и поиском"
-                       FontSize="14"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       Margin="0,8,0,0"
-                       HorizontalAlignment="Center" />
-        </StackPanel>
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xml:lang="ru-RU">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <ui:TextBox x:Name="SearchBox"
+                        Width="340"
+                        HorizontalAlignment="Left"
+                        PlaceholderText="Поиск по заголовку, тексту или тегам..."
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+            <ui:Button Content="Добавить заметку"
+                       Icon="Add24"
+                       Appearance="Primary"
+                       HorizontalAlignment="Right"
+                       Click="AddNote_Click" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <ListBox Grid.Column="0"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ItemsSource="{Binding Notes}"
+                     SelectedItem="{Binding SelectedNote}"
+                     MouseDoubleClick="NotesList_MouseDoubleClick">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="6"
+                                    CornerRadius="3"
+                                    Background="{Binding Color, Converter={StaticResource StringToBrush}}"
+                                    Margin="0,0,10,0" />
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                    <TextBlock Text="Закреплена"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                               Margin="8,2,0,0"
+                                               Visibility="{Binding IsPinned, Converter={StaticResource BoolToVisibility}}" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding Content}"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding Tags}"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Grid.Column="1"
+                    Margin="16,0,0,0"
+                    CornerRadius="8"
+                    Padding="16"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding SelectedNote.Title}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+
+                    <ScrollViewer Grid.Row="1" Margin="0,12,0,12" VerticalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding SelectedNote.Content}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <ui:Button Content="Изменить" Click="EditNote_Click" />
+                        <ui:Button Content="Закрепить" Margin="8,0,0,0" Click="TogglePin_Click" />
+                        <ui:Button Content="Удалить"
+                                   Appearance="Danger"
+                                   Margin="8,0,0,0"
+                                   Click="DeleteNote_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

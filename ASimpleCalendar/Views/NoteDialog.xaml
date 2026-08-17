@@ -1,0 +1,56 @@
+<Window x:Class="ASimpleCalendar.Views.NoteDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Заметка"
+        Width="460"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        xml:lang="ru-RU"
+        Background="{DynamicResource ApplicationBackgroundBrush}">
+    <Window.Resources>
+        <DataTemplate x:Key="ColorItemTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="14"
+                        Height="14"
+                        CornerRadius="7"
+                        Background="{Binding Converter={StaticResource StringToBrush}}"
+                        VerticalAlignment="Center" />
+                <TextBlock Text="{Binding}" Margin="8,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <StackPanel Margin="24">
+        <TextBlock Text="Заголовок" FontWeight="SemiBold" />
+        <ui:TextBox x:Name="TitleBox" Margin="0,6,0,0" />
+
+        <TextBlock Text="Текст заметки" FontWeight="SemiBold" Margin="0,16,0,0" />
+        <ui:TextBox x:Name="ContentBox" Margin="0,6,0,0" Height="120" AcceptsReturn="True" TextWrapping="Wrap" />
+
+        <TextBlock Text="Теги (через запятую)" FontWeight="SemiBold" Margin="0,16,0,0" />
+        <ui:TextBox x:Name="TagsBox" Margin="0,6,0,0" />
+
+        <Grid Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Цвет" FontWeight="SemiBold" />
+                <ComboBox x:Name="ColorBox"
+                          Margin="0,6,0,0"
+                          ItemTemplate="{StaticResource ColorItemTemplate}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                <ui:ToggleSwitch x:Name="PinBox" Content="Закрепить сверху" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+            <ui:Button Content="Отмена" Margin="0,0,8,0" Click="Cancel_Click" />
+            <ui:Button Content="Сохранить" Appearance="Primary" Click="Save_Click" />
+        </StackPanel>
+    </StackPanel>
+</Window>
