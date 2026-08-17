@@ -5,6 +5,7 @@ using ASimpleCalendar.Models;
 using ASimpleCalendar.Services;
 using ASimpleCalendar.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 
 namespace ASimpleCalendar.Views;
 
@@ -42,5 +43,63 @@ public partial class SettingsView : UserControl
         {
             _viewModel.RemoveCategory(item);
         }
+    }
+
+    private void Export_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = "JSON (*.json)|*.json",
+            FileName = "ASimpleCalendar-backup.json"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            App.Services.GetRequiredService<DataExportService>().ExportToFile(dialog.FileName);
+            MessageBox.Show("Данные экспортированы.", "ASimpleCalendar", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    private void Import_Click(object sender, RoutedEventArgs e)
+    {
+        var confirm = MessageBox.Show(
+            "Импорт заменит текущие данные. Продолжить?",
+            "ASimpleCalendar",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (confirm != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        var dialog = new OpenFileDialog
+        {
+            Filter = "JSON (*.json)|*.json"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            App.Services.GetRequiredService<DataExportService>().ImportFromFile(dialog.FileName);
+            MessageBox.Show("Импорт завершён. Приложение будет перезапущено.", "ASimpleCalendar", MessageBoxButton.OK, MessageBoxImage.Information);
+            Restart();
+        }
+    }
+
+    private void Backup_Click(object sender, RoutedEventArgs e)
+    {
+        var path = App.Services.GetRequiredService<DataExportService>().CreateBackup();
+        MessageBox.Show("Резервная копия сохранена:\n" + path, "ASimpleCalendar", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private static void Restart()
+    {
+        var exe = Environment.ProcessPath;
+        if (exe is not null)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = true });
+        }
+
+        App.ShutdownApplication();
     }
 }

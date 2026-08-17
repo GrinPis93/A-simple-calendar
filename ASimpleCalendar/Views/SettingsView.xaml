@@ -91,6 +91,26 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
+
+            <TextBlock Text="Данные" FontWeight="SemiBold" Margin="0,28,0,0" />
+            <Border CornerRadius="8"
+                    Padding="16"
+                    Margin="0,10,0,0"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <StackPanel>
+                    <ui:Button Content="Экспорт в JSON"
+                               HorizontalAlignment="Left"
+                               Click="Export_Click" />
+                    <ui:Button Content="Импорт из JSON"
+                               Margin="0,10,0,0"
+                               HorizontalAlignment="Left"
+                               Click="Import_Click" />
+                    <ui:Button Content="Создать резервную копию"
+                               Margin="0,10,0,0"
+                               HorizontalAlignment="Left"
+                               Click="Backup_Click" />
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>

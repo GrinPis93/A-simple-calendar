@@ -33,4 +33,20 @@ public class SettingsRepository : ISettingsRepository
         command.Parameters.AddWithValue("@value", value);
         command.ExecuteNonQuery();
     }
+
+    public Dictionary<string, string> GetAll()
+    {
+        var result = new Dictionary<string, string>();
+
+        using var connection = _db.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Key, Value FROM Settings";
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            result[reader.GetString(0)] = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+        }
+
+        return result;
+    }
 }

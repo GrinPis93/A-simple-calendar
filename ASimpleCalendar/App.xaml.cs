@@ -47,6 +47,7 @@ public partial class App : Application
         services.AddSingleton<WidgetService>();
         services.AddSingleton<AutoStartService>();
         services.AddSingleton<CategoryService>();
+        services.AddSingleton<DataExportService>();
         Services = services.BuildServiceProvider();
 
         Services.GetRequiredService<DatabaseService>().Initialize();
