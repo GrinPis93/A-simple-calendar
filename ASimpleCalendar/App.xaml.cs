@@ -1,5 +1,6 @@
 using System.Windows;
 using ASimpleCalendar.Data;
+using ASimpleCalendar.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Appearance;
 
@@ -21,9 +22,12 @@ public partial class App : Application
         services.AddSingleton<INoteRepository, NoteRepository>();
         services.AddSingleton<IReminderRepository, ReminderRepository>();
         services.AddSingleton<ISettingsRepository, SettingsRepository>();
+        services.AddSingleton<NotificationService>();
+        services.AddSingleton<ReminderScheduler>();
         Services = services.BuildServiceProvider();
 
         Services.GetRequiredService<DatabaseService>().Initialize();
+        Services.GetRequiredService<ReminderScheduler>();
 
         // Тёмная тема по умолчанию; в дальнейшем будет читаться из настроек.
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);

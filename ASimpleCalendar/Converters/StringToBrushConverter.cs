@@ -12,8 +12,7 @@ public class StringToBrushConverter : IValueConverter
         {
             try
             {
-                var brush = (Brush)new BrushConverter().ConvertFromString(s);
-                if (brush is not null)
+                if (new BrushConverter().ConvertFromString(s) is Brush brush)
                 {
                     return brush;
                 }

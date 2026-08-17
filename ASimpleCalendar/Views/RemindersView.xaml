@@ -1,20 +1,96 @@
 <UserControl x:Class="ASimpleCalendar.Views.RemindersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <Grid Margin="24">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <ui:SymbolIcon Symbol="Alert24" FontSize="48" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xml:lang="ru-RU">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
             <TextBlock Text="Напоминания"
-                       FontSize="28"
+                       FontSize="22"
                        FontWeight="SemiBold"
-                       Margin="0,16,0,0"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="Здесь появятся напоминания с повтором и уведомлениями"
-                       FontSize="14"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       Margin="0,8,0,0"
-                       HorizontalAlignment="Center" />
-        </StackPanel>
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center" />
+            <ui:Button Content="Добавить напоминание"
+                       Icon="Add24"
+                       Appearance="Primary"
+                       HorizontalAlignment="Right"
+                       Click="AddReminder_Click" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <ListBox Grid.Column="0"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ItemsSource="{Binding Reminders}"
+                     SelectedItem="{Binding SelectedReminder}"
+                     MouseDoubleClick="RemindersList_MouseDoubleClick">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="2,4">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding RemindAt, StringFormat={}{0:dd MMMM yyyy HH:mm}}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding Repeat, Converter={StaticResource RepeatToText}}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Grid.Column="1"
+                    Margin="16,0,0,0"
+                    CornerRadius="8"
+                    Padding="16"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding SelectedReminder.Title}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+
+                    <StackPanel Grid.Row="1" Margin="0,12,0,12">
+                        <TextBlock Text="{Binding SelectedReminder.Message}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Margin="0,12,0,0">
+                            <Run Text="Когда: " Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Run Text="{Binding SelectedReminder.RemindAt, StringFormat={}{0:dd MMMM yyyy HH:mm}, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Margin="0,4,0,0">
+                            <Run Text="Повтор: " Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Run Text="{Binding SelectedReminder.Repeat, Converter={StaticResource RepeatToText}, Mode=OneWay}" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <ui:Button Content="Изменить" Click="EditReminder_Click" />
+                        <ui:Button Content="Вкл/Выкл" Margin="8,0,0,0" Click="ToggleActive_Click" />
+                        <ui:Button Content="Удалить"
+                                   Appearance="Danger"
+                                   Margin="8,0,0,0"
+                                   Click="DeleteReminder_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

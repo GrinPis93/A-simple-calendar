@@ -10,6 +10,7 @@
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
             <conv:StringToBrushConverter x:Key="StringToBrush" />
+            <conv:RepeatToTextConverter x:Key="RepeatToText" />
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         </ResourceDictionary>
     </Application.Resources>
