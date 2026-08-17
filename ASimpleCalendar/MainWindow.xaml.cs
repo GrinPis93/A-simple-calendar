@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using ASimpleCalendar.Views;
 using Wpf.Ui.Controls;
 
@@ -21,13 +22,45 @@ public partial class MainWindow : FluentWindow
         _pages["reminders"] = new RemindersView();
         _pages["settings"] = new SettingsView();
 
+        foreach (var item in RootNavigation.MenuItems.OfType<NavigationViewItem>())
+        {
+            WireItem(item);
+        }
+
+        foreach (var item in RootNavigation.FooterMenuItems.OfType<NavigationViewItem>())
+        {
+            WireItem(item);
+        }
+
         var first = RootNavigation.MenuItems.OfType<NavigationViewItem>().FirstOrDefault();
         if (first is not null)
         {
             first.IsActive = true;
         }
 
-        MainContent.Content = _pages["calendar"];
+        ShowPage("calendar");
+    }
+
+    private void WireItem(NavigationViewItem item)
+    {
+        item.AddHandler(
+            MouseLeftButtonUpEvent,
+            new MouseButtonEventHandler((sender, _) =>
+            {
+                if (sender is NavigationViewItem nav && nav.Tag is string tag)
+                {
+                    ShowPage(tag);
+                }
+            }),
+            handledEventsToo: true);
+    }
+
+    private void ShowPage(string tag)
+    {
+        if (_pages.TryGetValue(tag, out var page))
+        {
+            MainContent.Content = page;
+        }
     }
 
     protected override void OnClosing(CancelEventArgs e)
@@ -38,15 +71,6 @@ public partial class MainWindow : FluentWindow
         {
             e.Cancel = true;
             Hide();
-        }
-    }
-
-    private void RootNavigation_SelectionChanged(object sender, RoutedEventArgs e)
-    {
-        if (RootNavigation.SelectedItem is NavigationViewItem { Tag: string tag } &&
-            _pages.TryGetValue(tag, out var page))
-        {
-            MainContent.Content = page;
         }
     }
 }

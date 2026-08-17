@@ -31,8 +31,7 @@
             IsBackButtonVisible="Collapsed"
             IsPaneToggleVisible="True"
             PaneDisplayMode="Left"
-            PaneTitle="Меню"
-            SelectionChanged="RootNavigation_SelectionChanged">
+            PaneTitle="Меню">
 
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Календарь" Tag="calendar">
