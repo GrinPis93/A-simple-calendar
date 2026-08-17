@@ -1,20 +1,202 @@
 <UserControl x:Class="ASimpleCalendar.Views.CalendarView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <Grid Margin="24">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <ui:SymbolIcon Symbol="Calendar24" FontSize="48" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
-            <TextBlock Text="Календарь"
-                       FontSize="28"
-                       FontWeight="SemiBold"
-                       Margin="0,16,0,0"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="Здесь появится календарь с событиями: день, неделя, месяц"
-                       FontSize="14"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       Margin="0,8,0,0"
-                       HorizontalAlignment="Center" />
-        </StackPanel>
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:ASimpleCalendar.ViewModels"
+             xml:lang="ru-RU">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EventPillTemplate">
+            <Border Background="{Binding Color, Converter={StaticResource StringToBrush}}"
+                    CornerRadius="3"
+                    Margin="0,1"
+                    Padding="4,2">
+                <TextBlock Text="{Binding Title}"
+                           FontSize="10"
+                           Foreground="White"
+                           TextTrimming="CharacterEllipsis" />
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding MonthTitle}"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           MinWidth="180" />
+                <ui:Button Icon="ArrowLeft24"
+                           Margin="12,0,0,0"
+                           ToolTip="Предыдущий месяц"
+                           Command="{Binding PreviousMonthCommand}" />
+                <ui:Button Icon="ArrowRight24"
+                           Margin="4,0,0,0"
+                           ToolTip="Следующий месяц"
+                           Command="{Binding NextMonthCommand}" />
+                <ui:Button Content="Сегодня"
+                           Margin="12,0,0,0"
+                           Command="{Binding GoToTodayCommand}" />
+            </StackPanel>
+            <ui:Button Content="Добавить событие"
+                       Icon="Add24"
+                       Appearance="Primary"
+                       HorizontalAlignment="Right"
+                       Click="AddEvent_Click" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="2,0,2,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Пн" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="1" Text="Вт" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="2" Text="Ср" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="3" Text="Чт" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="4" Text="Пт" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="5" Text="Сб" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="6" Text="Вс" HorizontalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </Grid>
+
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Days}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="7" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:DayCellViewModel}">
+                            <Button Margin="1"
+                                    Padding="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Command="{Binding DataContext.SelectDayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}">
+                                <Border x:Name="CellBorder"
+                                        CornerRadius="6"
+                                        Padding="5"
+                                        MinHeight="82"
+                                        BorderThickness="1"
+                                        BorderBrush="Transparent">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding DayNumber}"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <ItemsControl Grid.Row="1"
+                                                      Margin="0,3,0,0"
+                                                      ItemsSource="{Binding VisibleEvents}"
+                                                      ItemTemplate="{StaticResource EventPillTemplate}" />
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding MoreText}"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Bottom"
+                                                   Visibility="{Binding HasMore, Converter={StaticResource BoolToVisibility}}" />
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <Border Grid.Column="1"
+                    Margin="16,0,0,0"
+                    CornerRadius="8"
+                    Padding="16"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding SelectedDate, StringFormat={}{0:dd MMMM yyyy}}"
+                               FontSize="16"
+                               FontWeight="SemiBold" />
+
+                    <ListBox Grid.Row="1"
+                             Margin="0,12,0,12"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ItemsSource="{Binding SelectedDayEvents}"
+                             SelectedItem="{Binding SelectedEvent}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,2,0,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="10"
+                                                Height="10"
+                                                CornerRadius="5"
+                                                Background="{Binding Color, Converter={StaticResource StringToBrush}}"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Title}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="8,0,0,0" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding StartDate, StringFormat={}{0:HH:mm}}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                               Margin="18,2,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <ui:Button Content="Изменить" Click="EditEvent_Click" />
+                        <ui:Button Content="Удалить"
+                                   Appearance="Danger"
+                                   Margin="8,0,0,0"
+                                   Click="DeleteEvent_Click" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
