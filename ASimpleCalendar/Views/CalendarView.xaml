@@ -9,7 +9,9 @@
             <Border Background="{Binding Color, Converter={StaticResource StringToBrush}}"
                     CornerRadius="3"
                     Margin="0,1"
-                    Padding="4,2">
+                    Padding="4,2"
+                    Cursor="SizeAll"
+                    MouseLeftButtonDown="EventPill_MouseLeftButtonDown">
                 <TextBlock Text="{Binding Title}"
                            FontSize="10"
                            Foreground="White"
@@ -120,6 +122,9 @@
                                     BorderThickness="0"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
+                                    AllowDrop="True"
+                                    DragOver="Cell_DragOver"
+                                    Drop="Cell_Drop"
                                     Command="{Binding DataContext.SelectDayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                     CommandParameter="{Binding}">
                                 <Border CornerRadius="6"

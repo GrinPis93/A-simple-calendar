@@ -179,6 +179,24 @@ public partial class CalendarViewModel : ObservableObject
         Rebuild();
     }
 
+    public void MoveEvent(Event item, DateTime newDate)
+    {
+        if (item.Repeat != RepeatRule.None)
+        {
+            return;
+        }
+
+        var offset = newDate.Date - item.StartDate.Date;
+        item.StartDate = item.StartDate.Add(offset);
+        if (item.EndDate.HasValue)
+        {
+            item.EndDate = item.EndDate.Value.Add(offset);
+        }
+
+        _events.Update(item);
+        Rebuild();
+    }
+
     private void Rebuild()
     {
         var ru = CultureInfo.GetCultureInfo("ru-RU");

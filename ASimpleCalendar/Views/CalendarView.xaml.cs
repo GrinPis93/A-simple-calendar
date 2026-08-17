@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using ASimpleCalendar.Data;
 using ASimpleCalendar.Models;
 using ASimpleCalendar.ViewModels;
@@ -66,6 +67,31 @@ public partial class CalendarView : UserControl
         if (answer == MessageBoxResult.Yes)
         {
             _viewModel.DeleteEvent(ev);
+        }
+    }
+
+    private void EventPill_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement element && element.DataContext is Event ev)
+        {
+            var data = new DataObject(typeof(Event), ev);
+            DragDrop.DoDragDrop(element, data, DragDropEffects.Move);
+        }
+    }
+
+    private void Cell_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent(typeof(Event)) ? DragDropEffects.Move : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void Cell_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetData(typeof(Event)) is Event ev &&
+            sender is FrameworkElement element &&
+            element.DataContext is DayCellViewModel cell)
+        {
+            _viewModel.MoveEvent(ev, cell.Date);
         }
     }
 }
