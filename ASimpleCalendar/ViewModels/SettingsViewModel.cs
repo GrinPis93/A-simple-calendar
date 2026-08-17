@@ -1,19 +1,26 @@
 using System.Globalization;
 using ASimpleCalendar.Data;
+using ASimpleCalendar.Models;
 using ASimpleCalendar.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Wpf.Ui.Appearance;
 
 namespace ASimpleCalendar.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
+    private static readonly ThemeOption[] ThemeOptions =
+    {
+        new("Тёмная", ThemeMode.Dark),
+        new("Светлая", ThemeMode.Light),
+        new("Авто (по системе)", ThemeMode.Auto)
+    };
+
     private readonly WidgetService _widgets;
     private readonly ISettingsRepository _settings;
     private readonly AutoStartService _autoStart;
 
     [ObservableProperty]
-    private bool _isDarkTheme;
+    private ThemeOption _selectedThemeOption = ThemeOptions[0];
 
     [ObservableProperty]
     private bool _clockEnabled;
@@ -45,7 +52,8 @@ public partial class SettingsViewModel : ObservableObject
         _settings = settings;
         _autoStart = autoStart;
 
-        _isDarkTheme = ApplicationThemeManager.GetAppTheme() == ApplicationTheme.Dark;
+        var mode = ThemeHelper.Parse(settings.Get("theme"));
+        _selectedThemeOption = ThemeOptions.First(o => o.Value == mode);
         _clockEnabled = widgets.IsClockOpen;
         _calendarEnabled = widgets.IsCalendarOpen;
         _tasksEnabled = widgets.IsTasksOpen;
@@ -56,10 +64,12 @@ public partial class SettingsViewModel : ObservableObject
         _widgetLocked = widgets.Locked;
     }
 
-    partial void OnIsDarkThemeChanged(bool value)
+    public IReadOnlyList<ThemeOption> ThemeChoices => ThemeOptions;
+
+    partial void OnSelectedThemeOptionChanged(ThemeOption value)
     {
-        ApplicationThemeManager.Apply(value ? ApplicationTheme.Dark : ApplicationTheme.Light);
-        _settings.Set("theme", value ? "dark" : "light");
+        ThemeHelper.Apply(value.Value);
+        _settings.Set("theme", ThemeHelper.ToString(value.Value));
     }
 
     partial void OnClockEnabledChanged(bool value) => _widgets.ToggleClock();

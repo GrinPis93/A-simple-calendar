@@ -1,9 +1,10 @@
 using System.Windows;
 using System.Windows.Threading;
 using ASimpleCalendar.Data;
+using ASimpleCalendar.Models;
 using ASimpleCalendar.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Wpf.Ui.Appearance;
+using Microsoft.Win32;
 
 namespace ASimpleCalendar;
 
@@ -51,8 +52,9 @@ public partial class App : Application
         Services.GetRequiredService<ReminderScheduler>();
 
         var settings = Services.GetRequiredService<ISettingsRepository>();
-        var theme = settings.Get("theme");
-        ApplicationThemeManager.Apply(theme == "light" ? ApplicationTheme.Light : ApplicationTheme.Dark);
+        ThemeHelper.Apply(ThemeHelper.Parse(settings.Get("theme")));
+
+        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         _mainWindow = new MainWindow();
         _mainWindow.Show();
@@ -84,6 +86,15 @@ public partial class App : Application
     private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         AppLogger.Log("Необработанное исключение", e.ExceptionObject as Exception);
+    }
+
+    private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    {
+        var settings = Services.GetRequiredService<ISettingsRepository>();
+        if (ThemeHelper.Parse(settings.Get("theme")) == ThemeMode.Auto)
+        {
+            ThemeHelper.Apply(ThemeMode.Auto);
+        }
     }
 
     private static void ShowFatalError(Exception ex)
