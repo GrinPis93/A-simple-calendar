@@ -19,7 +19,9 @@ public partial class MainWindow : FluentWindow
         _pages["reminders"] = new RemindersView();
         _pages["settings"] = new SettingsView();
 
-        RootNavigation.SelectedItem = RootNavigation.MenuItems.OfType<NavigationViewItem>().FirstOrDefault();
+        var first = RootNavigation.MenuItems.OfType<NavigationViewItem>().FirstOrDefault();
+        RootNavigation.SetCurrentValue(NavigationView.SelectedItemProperty, first);
+        MainContent.Content = _pages["calendar"];
     }
 
     private void RootNavigation_SelectionChanged(object sender, RoutedEventArgs e)
