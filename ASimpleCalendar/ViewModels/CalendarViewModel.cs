@@ -12,10 +12,16 @@ public partial class CalendarViewModel : ObservableObject
     private readonly IEventRepository _events;
 
     [ObservableProperty]
+    private CalendarViewMode _viewMode = CalendarViewMode.Month;
+
+    [ObservableProperty]
     private DateTime _currentMonth;
 
     [ObservableProperty]
-    private string _monthTitle = string.Empty;
+    private DateTime _weekStart;
+
+    [ObservableProperty]
+    private string _title = string.Empty;
 
     [ObservableProperty]
     private DateTime? _selectedDate;
@@ -23,7 +29,20 @@ public partial class CalendarViewModel : ObservableObject
     [ObservableProperty]
     private Event? _selectedEvent;
 
+    [ObservableProperty]
+    private bool _isMonthView = true;
+
+    [ObservableProperty]
+    private bool _isWeekView;
+
+    [ObservableProperty]
+    private bool _isDayView;
+
+    [ObservableProperty]
+    private bool _showSidePanel = true;
+
     public ObservableCollection<DayCellViewModel> Days { get; } = new();
+    public ObservableCollection<DayColumnViewModel> WeekDays { get; } = new();
     public ObservableCollection<Event> SelectedDayEvents { get; } = new();
 
     public CalendarViewModel(IEventRepository events)
@@ -31,40 +50,114 @@ public partial class CalendarViewModel : ObservableObject
         _events = events;
         var today = DateTime.Today;
         _currentMonth = new DateTime(today.Year, today.Month, 1);
+        _weekStart = today.AddDays(-((int)today.DayOfWeek + 6) % 7);
+        _selectedDate = today;
         Rebuild();
     }
 
-    partial void OnCurrentMonthChanged(DateTime value) => Rebuild();
+    partial void OnViewModeChanged(CalendarViewMode value)
+    {
+        IsMonthView = value == CalendarViewMode.Month;
+        IsWeekView = value == CalendarViewMode.Week;
+        IsDayView = value == CalendarViewMode.Day;
+        ShowSidePanel = value != CalendarViewMode.Day;
+        Rebuild();
+    }
+
+    partial void OnCurrentMonthChanged(DateTime value)
+    {
+        if (ViewMode == CalendarViewMode.Month)
+        {
+            Rebuild();
+        }
+    }
+
+    partial void OnWeekStartChanged(DateTime value)
+    {
+        if (ViewMode == CalendarViewMode.Week)
+        {
+            Rebuild();
+        }
+    }
+
+    partial void OnSelectedDateChanged(DateTime? value)
+    {
+        if (value is not { } date)
+        {
+            return;
+        }
+
+        if (ViewMode == CalendarViewMode.Day)
+        {
+            Rebuild();
+        }
+        else
+        {
+            UpdateSelection();
+            LoadSelectedDay(date);
+        }
+    }
 
     [RelayCommand]
-    private void PreviousMonth() => CurrentMonth = CurrentMonth.AddMonths(-1);
+    private void SetMonthView() => ViewMode = CalendarViewMode.Month;
 
     [RelayCommand]
-    private void NextMonth() => CurrentMonth = CurrentMonth.AddMonths(1);
+    private void SetWeekView() => ViewMode = CalendarViewMode.Week;
+
+    [RelayCommand]
+    private void SetDayView() => ViewMode = CalendarViewMode.Day;
+
+    [RelayCommand]
+    private void Previous()
+    {
+        switch (ViewMode)
+        {
+            case CalendarViewMode.Month:
+                CurrentMonth = CurrentMonth.AddMonths(-1);
+                break;
+            case CalendarViewMode.Week:
+                WeekStart = WeekStart.AddDays(-7);
+                break;
+            case CalendarViewMode.Day:
+                SelectedDate = (SelectedDate ?? DateTime.Today).AddDays(-1);
+                break;
+        }
+    }
+
+    [RelayCommand]
+    private void Next()
+    {
+        switch (ViewMode)
+        {
+            case CalendarViewMode.Month:
+                CurrentMonth = CurrentMonth.AddMonths(1);
+                break;
+            case CalendarViewMode.Week:
+                WeekStart = WeekStart.AddDays(7);
+                break;
+            case CalendarViewMode.Day:
+                SelectedDate = (SelectedDate ?? DateTime.Today).AddDays(1);
+                break;
+        }
+    }
 
     [RelayCommand]
     private void GoToToday()
     {
         var today = DateTime.Today;
         CurrentMonth = new DateTime(today.Year, today.Month, 1);
-        SelectDay(Days.FirstOrDefault(d => d.Date == today));
+        WeekStart = today.AddDays(-((int)today.DayOfWeek + 6) % 7);
+        SelectedDate = today;
+        Rebuild();
     }
 
     [RelayCommand]
     private void SelectDay(DayCellViewModel? cell)
     {
-        if (cell is null)
+        if (cell is not null)
         {
-            return;
+            SelectedDate = cell.Date;
         }
-
-        SelectedDate = cell.Date;
-        foreach (var day in Days)
-        {
-            day.IsSelected = day.Date == cell.Date;
-        }
-
-        LoadSelectedDay(cell.Date);
     }
 
     public void AddEvent(Event item)
@@ -89,17 +182,31 @@ public partial class CalendarViewModel : ObservableObject
     private void Rebuild()
     {
         var ru = CultureInfo.GetCultureInfo("ru-RU");
+
+        switch (ViewMode)
+        {
+            case CalendarViewMode.Month:
+                RebuildMonth(ru);
+                break;
+            case CalendarViewMode.Week:
+                RebuildWeek(ru);
+                break;
+            case CalendarViewMode.Day:
+                RebuildDay(ru);
+                break;
+        }
+    }
+
+    private void RebuildMonth(CultureInfo ru)
+    {
         var first = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
-        MonthTitle = ru.TextInfo.ToTitleCase(first.ToString("MMMM yyyy", ru));
+        Title = ru.TextInfo.ToTitleCase(first.ToString("MMMM yyyy", ru));
 
         var offset = ((int)first.DayOfWeek + 6) % 7;
         var start = first.AddDays(-offset);
         var end = start.AddDays(42);
 
-        var byDate = _events.GetByRange(start, end)
-            .GroupBy(e => e.StartDate.Date)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
+        var byDate = GroupByDate(start, end);
         var today = DateTime.Today;
         var selected = SelectedDate ?? today;
 
@@ -118,14 +225,71 @@ public partial class CalendarViewModel : ObservableObject
             });
         }
 
-        if (SelectedDate.HasValue)
-        {
-            LoadSelectedDay(SelectedDate.Value);
-        }
-        else
+        if (!SelectedDate.HasValue)
         {
             SelectedDate = today;
-            LoadSelectedDay(today);
+        }
+
+        LoadSelectedDay(SelectedDate.Value);
+    }
+
+    private void RebuildWeek(CultureInfo ru)
+    {
+        var start = WeekStart;
+        var end = start.AddDays(7);
+
+        Title = $"{start:dd MMMM} — {start.AddDays(6):dd MMMM yyyy}";
+
+        var byDate = GroupByDate(start, end);
+        var today = DateTime.Today;
+
+        WeekDays.Clear();
+        for (var i = 0; i < 7; i++)
+        {
+            var date = start.AddDays(i);
+            byDate.TryGetValue(date, out var dayEvents);
+            WeekDays.Add(new DayColumnViewModel
+            {
+                Date = date,
+                DayTitle = ru.TextInfo.ToTitleCase(date.ToString("ddd, dd MMM", ru)),
+                IsToday = date == today,
+                Events = dayEvents ?? new List<Event>()
+            });
+        }
+
+        if (!SelectedDate.HasValue || SelectedDate < start || SelectedDate >= end)
+        {
+            SelectedDate = start;
+        }
+
+        LoadSelectedDay(SelectedDate.Value);
+    }
+
+    private void RebuildDay(CultureInfo ru)
+    {
+        var date = SelectedDate ?? DateTime.Today;
+
+        if (!SelectedDate.HasValue)
+        {
+            SelectedDate = date;
+        }
+
+        Title = ru.TextInfo.ToTitleCase(date.ToString("dddd, d MMMM yyyy", ru));
+        LoadSelectedDay(date);
+    }
+
+    private Dictionary<DateTime, List<Event>> GroupByDate(DateTime start, DateTime end)
+    {
+        return _events.GetByRange(start, end)
+            .GroupBy(e => e.StartDate.Date)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private void UpdateSelection()
+    {
+        foreach (var day in Days)
+        {
+            day.IsSelected = SelectedDate.HasValue && day.Date == SelectedDate.Value;
         }
     }
 
