@@ -1,5 +1,8 @@
+using System.Linq;
 using System.Windows;
+using ASimpleCalendar.Data;
 using ASimpleCalendar.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ASimpleCalendar.Views;
 
@@ -23,6 +26,9 @@ public partial class ReminderDialog : Window
         RepeatBox.SelectedIndex = 0;
         ActiveBox.IsChecked = true;
 
+        var events = App.Services.GetRequiredService<IEventRepository>().GetAll();
+        EventBox.ItemsSource = events;
+
         if (existing is not null)
         {
             TitleBox.Text = existing.Title;
@@ -31,6 +37,11 @@ public partial class ReminderDialog : Window
             TimeBox.Text = existing.RemindAt.ToString("HH:mm");
             ActiveBox.IsChecked = existing.IsActive;
             RepeatBox.SelectedItem = RepeatOptions.FirstOrDefault(o => o.Value == existing.Repeat);
+
+            if (existing.EventId is int eventId)
+            {
+                EventBox.SelectedItem = events.FirstOrDefault(e => e.Id == eventId);
+            }
         }
     }
 
@@ -56,6 +67,7 @@ public partial class ReminderDialog : Window
             Message = string.IsNullOrWhiteSpace(MessageBox.Text) ? null : MessageBox.Text.Trim(),
             RemindAt = date.Date + time,
             Repeat = (RepeatBox.SelectedItem as RepeatOption)?.Value ?? RepeatRule.None,
+            EventId = (EventBox.SelectedItem as Event)?.Id,
             IsActive = ActiveBox.IsChecked == true,
             LastNotifiedAt = null
         };

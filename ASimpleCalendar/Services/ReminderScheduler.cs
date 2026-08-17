@@ -38,7 +38,7 @@ public class ReminderScheduler
                 continue;
             }
 
-            _notifications.ShowToast(reminder.Title, reminder.Message ?? "Напоминание");
+            _notifications.ShowToast(reminder.Title, reminder.Message ?? "Напоминание", reminder.Id);
 
             reminder.LastNotifiedAt = now;
             if (reminder.Repeat != RepeatRule.None)
