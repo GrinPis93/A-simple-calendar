@@ -6,8 +6,10 @@ using System.Windows.Media;
 
 namespace ASimpleCalendar.Widgets;
 
-public partial class MiniCalendarWidget : Window
+public partial class MiniCalendarWidget : Window, IWidget
 {
+    public bool LockDrag { get; set; }
+
     public MiniCalendarWidget()
     {
         InitializeComponent();
@@ -60,6 +62,11 @@ public partial class MiniCalendarWidget : Window
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (LockDrag)
+        {
+            return;
+        }
+
         if (e.ButtonState == MouseButtonState.Pressed)
         {
             DragMove();

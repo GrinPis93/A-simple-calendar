@@ -5,9 +5,11 @@ using System.Windows.Threading;
 
 namespace ASimpleCalendar.Widgets;
 
-public partial class ClockWidget : Window
+public partial class ClockWidget : Window, IWidget
 {
     private readonly DispatcherTimer _timer;
+
+    public bool LockDrag { get; set; }
 
     public ClockWidget()
     {
@@ -35,6 +37,11 @@ public partial class ClockWidget : Window
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (LockDrag)
+        {
+            return;
+        }
+
         if (e.ButtonState == MouseButtonState.Pressed)
         {
             DragMove();

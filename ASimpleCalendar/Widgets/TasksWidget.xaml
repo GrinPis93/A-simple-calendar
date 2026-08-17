@@ -28,6 +28,17 @@
                            FontWeight="SemiBold"
                            Foreground="White"
                            VerticalAlignment="Center" />
+                <Button Content="+"
+                        Width="24"
+                        Height="24"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,30,0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="#CCFFFFFF"
+                        FontSize="16"
+                        Cursor="Hand"
+                        Click="AddTask_Click" />
                 <Button Content="×"
                         Width="24"
                         Height="24"

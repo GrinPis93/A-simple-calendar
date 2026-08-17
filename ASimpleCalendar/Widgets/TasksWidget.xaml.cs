@@ -4,13 +4,16 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ASimpleCalendar.Data;
+using ASimpleCalendar.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ASimpleCalendar.Widgets;
 
-public partial class TasksWidget : Window
+public partial class TasksWidget : Window, IWidget
 {
     private readonly DispatcherTimer _timer;
+
+    public bool LockDrag { get; set; }
 
     public TasksWidget()
     {
@@ -115,6 +118,11 @@ public partial class TasksWidget : Window
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (LockDrag)
+        {
+            return;
+        }
+
         if (e.ButtonState == MouseButtonState.Pressed)
         {
             DragMove();
@@ -122,4 +130,18 @@ public partial class TasksWidget : Window
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void AddTask_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new EventDialog(initialDate: DateTime.Today)
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true && dialog.Result is not null)
+        {
+            App.Services.GetRequiredService<IEventRepository>().Add(dialog.Result);
+            Reload();
+        }
+    }
 }
