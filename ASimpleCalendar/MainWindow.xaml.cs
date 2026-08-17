@@ -20,7 +20,11 @@ public partial class MainWindow : FluentWindow
         _pages["settings"] = new SettingsView();
 
         var first = RootNavigation.MenuItems.OfType<NavigationViewItem>().FirstOrDefault();
-        RootNavigation.SetCurrentValue(NavigationView.SelectedItemProperty, first);
+        if (first is not null)
+        {
+            first.IsActive = true;
+        }
+
         MainContent.Content = _pages["calendar"];
     }
 
