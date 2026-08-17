@@ -8,21 +8,12 @@ namespace ASimpleCalendar.Views;
 
 public partial class ReminderDialog : Window
 {
-    private static readonly RepeatOption[] RepeatOptions =
-    {
-        new("Без повтора", RepeatRule.None),
-        new("Ежедневно", RepeatRule.Daily),
-        new("Еженедельно", RepeatRule.Weekly),
-        new("Ежемесячно", RepeatRule.Monthly),
-        new("Ежегодно", RepeatRule.Yearly)
-    };
-
     public Reminder? Result { get; private set; }
 
     public ReminderDialog(Reminder? existing = null)
     {
         InitializeComponent();
-        RepeatBox.ItemsSource = RepeatOptions;
+        RepeatBox.ItemsSource = RepeatOptionList.All;
         RepeatBox.SelectedIndex = 0;
         ActiveBox.IsChecked = true;
 
@@ -36,7 +27,7 @@ public partial class ReminderDialog : Window
             DatePicker.SelectedDate = existing.RemindAt.Date;
             TimeBox.Text = existing.RemindAt.ToString("HH:mm");
             ActiveBox.IsChecked = existing.IsActive;
-            RepeatBox.SelectedItem = RepeatOptions.FirstOrDefault(o => o.Value == existing.Repeat);
+            RepeatBox.SelectedItem = RepeatOptionList.All.FirstOrDefault(o => o.Value == existing.Repeat);
 
             if (existing.EventId is int eventId)
             {

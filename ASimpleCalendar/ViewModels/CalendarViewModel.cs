@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using ASimpleCalendar.Data;
 using ASimpleCalendar.Models;
+using ASimpleCalendar.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -243,9 +244,9 @@ public partial class CalendarViewModel : ObservableObject
             });
         }
 
-        if (!SelectedDate.HasValue)
+        if (!SelectedDate.HasValue || SelectedDate.Value.Year != CurrentMonth.Year || SelectedDate.Value.Month != CurrentMonth.Month)
         {
-            SelectedDate = today;
+            SelectedDate = first;
         }
 
         LoadSelectedDay(SelectedDate.Value);
@@ -307,75 +308,12 @@ public partial class CalendarViewModel : ObservableObject
     {
         var result = new List<Event>(_events.GetByRange(start, end));
 
-        foreach (var ev in _events.GetAll().Where(e => e.Repeat != RepeatRule.None))
+        foreach (var ev in _events.GetRepeating())
         {
-            result.AddRange(ExpandOccurrences(ev, start, end));
+            result.AddRange(EventOccurrenceService.Expand(ev, start, end));
         }
 
         return result;
-    }
-
-    private static IEnumerable<Event> ExpandOccurrences(Event ev, DateTime start, DateTime end)
-    {
-        var limit = ev.RepeatUntil ?? end;
-        if (limit > end)
-        {
-            limit = end;
-        }
-
-        var current = ev.StartDate;
-        while (current < start)
-        {
-            var next = NextOccurrence(current, ev.Repeat);
-            if (next <= current)
-            {
-                yield break;
-            }
-
-            current = next;
-        }
-
-        while (current <= limit)
-        {
-            yield return CloneForDate(ev, current);
-
-            var next = NextOccurrence(current, ev.Repeat);
-            if (next <= current)
-            {
-                yield break;
-            }
-
-            current = next;
-        }
-    }
-
-    private static DateTime NextOccurrence(DateTime current, RepeatRule repeat) => repeat switch
-    {
-        RepeatRule.Daily => current.AddDays(1),
-        RepeatRule.Weekly => current.AddDays(7),
-        RepeatRule.Monthly => current.AddMonths(1),
-        RepeatRule.Yearly => current.AddYears(1),
-        _ => current
-    };
-
-    private static Event CloneForDate(Event ev, DateTime date)
-    {
-        var duration = ev.EndDate.HasValue ? ev.EndDate.Value - ev.StartDate : TimeSpan.Zero;
-
-        return new Event
-        {
-            Id = ev.Id,
-            Title = ev.Title,
-            Description = ev.Description,
-            StartDate = date,
-            EndDate = ev.EndDate.HasValue ? date + duration : null,
-            AllDay = ev.AllDay,
-            Category = ev.Category,
-            Color = ev.Color,
-            Repeat = ev.Repeat,
-            RepeatUntil = ev.RepeatUntil,
-            CreatedAt = ev.CreatedAt
-        };
     }
 
     private void UpdateSelection()

@@ -15,6 +15,7 @@ public partial class App : Application
 
     private MainWindow? _mainWindow;
     private TrayService? _tray;
+    private HotKeyService? _hotKeys;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -63,8 +64,8 @@ public partial class App : Application
 
         _tray = new TrayService(_mainWindow, Services.GetRequiredService<WidgetService>());
 
-        var hotKeys = new HotKeyService();
-        hotKeys.Register(
+        _hotKeys = new HotKeyService();
+        _hotKeys.Register(
             _mainWindow,
             onShow: () => _tray?.ShowMainWindow(),
             onNewNote: () =>

@@ -5,6 +5,7 @@ namespace ASimpleCalendar.Data;
 public interface IEventRepository
 {
     List<Event> GetAll();
+    List<Event> GetRepeating();
     List<Event> GetByRange(DateTime start, DateTime end);
     Event? GetById(int id);
     int Add(Event item);

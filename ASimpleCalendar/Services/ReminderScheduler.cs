@@ -43,7 +43,7 @@ public class ReminderScheduler
             reminder.LastNotifiedAt = now;
             if (reminder.Repeat != RepeatRule.None)
             {
-                reminder.RemindAt = NextOccurrence(reminder.RemindAt, reminder.Repeat);
+                reminder.RemindAt = EventOccurrenceService.NextOccurrence(reminder.RemindAt, reminder.Repeat);
             }
             else
             {
@@ -53,13 +53,4 @@ public class ReminderScheduler
             _reminders.Update(reminder);
         }
     }
-
-    private static DateTime NextOccurrence(DateTime current, RepeatRule repeat) => repeat switch
-    {
-        RepeatRule.Daily => current.AddDays(1),
-        RepeatRule.Weekly => current.AddDays(7),
-        RepeatRule.Monthly => current.AddMonths(1),
-        RepeatRule.Yearly => current.AddYears(1),
-        _ => current
-    };
 }

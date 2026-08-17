@@ -20,6 +20,14 @@ public class EventRepository : IEventRepository
         return ReadAll(command);
     }
 
+    public List<Event> GetRepeating()
+    {
+        using var connection = _db.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT * FROM Events WHERE Repeat != 0 ORDER BY StartDate";
+        return ReadAll(command);
+    }
+
     public List<Event> GetByRange(DateTime start, DateTime end)
     {
         using var connection = _db.CreateConnection();

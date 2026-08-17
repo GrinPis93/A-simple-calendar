@@ -26,6 +26,8 @@ public partial class ClockWidget : Window, IWidget
         };
         _timer.Tick += (_, _) => UpdateClock();
         _timer.Start();
+
+        Closed += (_, _) => _timer.Stop();
     }
 
     private void UpdateClock()

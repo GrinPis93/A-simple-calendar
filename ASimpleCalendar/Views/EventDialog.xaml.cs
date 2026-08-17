@@ -8,22 +8,13 @@ namespace ASimpleCalendar.Views;
 
 public partial class EventDialog : Window
 {
-    private static readonly RepeatOption[] RepeatOptions =
-    {
-        new("Без повтора", RepeatRule.None),
-        new("Ежедневно", RepeatRule.Daily),
-        new("Еженедельно", RepeatRule.Weekly),
-        new("Ежемесячно", RepeatRule.Monthly),
-        new("Ежегодно", RepeatRule.Yearly)
-    };
-
     public Event? Result { get; private set; }
 
     public EventDialog(Event? existing = null, DateTime? initialDate = null)
     {
         InitializeComponent();
         CategoryBox.ItemsSource = App.Services.GetRequiredService<CategoryService>().GetCategories();
-        RepeatBox.ItemsSource = RepeatOptions;
+        RepeatBox.ItemsSource = RepeatOptionList.All;
         RepeatBox.SelectedIndex = 0;
 
         if (existing is not null)
@@ -41,7 +32,7 @@ public partial class EventDialog : Window
                 CategoryBox.SelectedItem = CategoryBox.Items.OfType<CategoryItem>().FirstOrDefault(c => c.Color == existing.Color);
             }
 
-            RepeatBox.SelectedItem = RepeatOptions.FirstOrDefault(o => o.Value == existing.Repeat);
+            RepeatBox.SelectedItem = RepeatOptionList.All.FirstOrDefault(o => o.Value == existing.Repeat);
         }
         else
         {

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ASimpleCalendar.Data;
+using ASimpleCalendar.Services;
 using ASimpleCalendar.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,14 +31,21 @@ public partial class TasksWidget : Window, IWidget
         };
         _timer.Tick += (_, _) => Reload();
         _timer.Start();
+
+        Closed += (_, _) => _timer.Stop();
     }
 
     private void Reload()
     {
         ItemsPanel.Children.Clear();
 
-        var events = App.Services.GetRequiredService<IEventRepository>()
-            .GetByRange(DateTime.Today, DateTime.Today.AddDays(1));
+        var eventRepository = App.Services.GetRequiredService<IEventRepository>();
+
+        var events = eventRepository
+            .GetByRange(DateTime.Today, DateTime.Today.AddDays(1))
+            .Concat(eventRepository.GetRepeating()
+                .SelectMany(ev => EventOccurrenceService.Expand(ev, DateTime.Today, DateTime.Today.AddDays(1))))
+            .ToList();
 
         var reminders = App.Services.GetRequiredService<IReminderRepository>()
             .GetActive()

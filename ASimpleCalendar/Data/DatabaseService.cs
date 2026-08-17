@@ -77,6 +77,11 @@ public class DatabaseService
             """;
         command.ExecuteNonQuery();
 
+        // Ускорение записи и конкурентного доступа (чтение/запись параллельно).
+        using var pragma = connection.CreateCommand();
+        pragma.CommandText = "PRAGMA journal_mode=WAL;";
+        pragma.ExecuteNonQuery();
+
         // Миграции для баз, созданных в ранних версиях приложения.
         EnsureColumn(connection, "Events", "Repeat", "INTEGER NOT NULL DEFAULT 0");
         EnsureColumn(connection, "Events", "RepeatUntil", "TEXT NULL");
