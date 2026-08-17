@@ -18,11 +18,26 @@ public class TrayService
 
         _icon = new TaskbarIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = LoadIcon(),
             ToolTipText = "ASimpleCalendar",
             ContextMenu = BuildMenu()
         };
         _icon.TrayMouseDoubleClick += (_, _) => ShowMainWindow();
+    }
+
+    private static Icon LoadIcon()
+    {
+        var exePath = Environment.ProcessPath;
+        if (exePath is not null)
+        {
+            var icon = Icon.ExtractAssociatedIcon(exePath);
+            if (icon is not null)
+            {
+                return icon;
+            }
+        }
+
+        return SystemIcons.Application;
     }
 
     public void ShowMainWindow()

@@ -9,6 +9,7 @@
     <AssemblyName>ASimpleCalendar</AssemblyName>
     <RootNamespace>ASimpleCalendar</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
