@@ -10,5 +10,7 @@ public class Event
     public bool AllDay { get; set; }
     public string? Category { get; set; }
     public string? Color { get; set; }
+    public RepeatRule Repeat { get; set; }
+    public DateTime? RepeatUntil { get; set; }
     public DateTime CreatedAt { get; set; }
 }

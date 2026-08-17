@@ -42,6 +42,8 @@ public class DatabaseService
                 AllDay INTEGER NOT NULL DEFAULT 0,
                 Category TEXT NULL,
                 Color TEXT NULL,
+                Repeat INTEGER NOT NULL DEFAULT 0,
+                RepeatUntil TEXT NULL,
                 CreatedAt TEXT NOT NULL
             );
 
@@ -73,5 +75,35 @@ public class DatabaseService
             );
             """;
         command.ExecuteNonQuery();
+
+        // Миграции для баз, созданных в ранних версиях приложения.
+        EnsureColumn(connection, "Events", "Repeat", "INTEGER NOT NULL DEFAULT 0");
+        EnsureColumn(connection, "Events", "RepeatUntil", "TEXT NULL");
+    }
+
+    private static void EnsureColumn(SqliteConnection connection, string table, string column, string definition)
+    {
+        using var check = connection.CreateCommand();
+        check.CommandText = $"PRAGMA table_info({table})";
+        using var reader = check.ExecuteReader();
+
+        var exists = false;
+        while (reader.Read())
+        {
+            if (reader.GetString(1) == column)
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        if (exists)
+        {
+            return;
+        }
+
+        using var alter = connection.CreateCommand();
+        alter.CommandText = $"ALTER TABLE {table} ADD COLUMN {column} {definition}";
+        alter.ExecuteNonQuery();
     }
 }

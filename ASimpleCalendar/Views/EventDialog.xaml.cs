@@ -6,12 +6,23 @@ namespace ASimpleCalendar.Views;
 
 public partial class EventDialog : Window
 {
+    private static readonly RepeatOption[] RepeatOptions =
+    {
+        new("Без повтора", RepeatRule.None),
+        new("Ежедневно", RepeatRule.Daily),
+        new("Еженедельно", RepeatRule.Weekly),
+        new("Ежемесячно", RepeatRule.Monthly),
+        new("Ежегодно", RepeatRule.Yearly)
+    };
+
     public Event? Result { get; private set; }
 
     public EventDialog(Event? existing = null, DateTime? initialDate = null)
     {
         InitializeComponent();
         CategoryBox.ItemsSource = CategoryPalette.Items;
+        RepeatBox.ItemsSource = RepeatOptions;
+        RepeatBox.SelectedIndex = 0;
 
         if (existing is not null)
         {
@@ -21,11 +32,14 @@ public partial class EventDialog : Window
             StartTimeBox.Text = existing.StartDate.ToString("HH:mm");
             EndTimeBox.Text = existing.EndDate?.ToString("HH:mm") ?? string.Empty;
             AllDayBox.IsChecked = existing.AllDay;
+            RepeatUntilPicker.SelectedDate = existing.RepeatUntil;
 
             if (existing.Color is not null)
             {
                 CategoryBox.SelectedItem = CategoryPalette.Items.FirstOrDefault(c => c.Color == existing.Color);
             }
+
+            RepeatBox.SelectedItem = RepeatOptions.FirstOrDefault(o => o.Value == existing.Repeat);
         }
         else
         {
@@ -68,6 +82,8 @@ public partial class EventDialog : Window
             AllDay = AllDayBox.IsChecked == true,
             Category = category?.Name,
             Color = category?.Color,
+            Repeat = (RepeatBox.SelectedItem as RepeatOption)?.Value ?? RepeatRule.None,
+            RepeatUntil = RepeatUntilPicker.SelectedDate,
             CreatedAt = DateTime.Now
         };
 

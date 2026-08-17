@@ -37,6 +37,10 @@
                 <ui:ToggleSwitch x:Name="AllDayBox" Content="Весь день" />
                 <TextBlock Text="Категория" FontWeight="SemiBold" Margin="0,18,0,0" />
                 <ComboBox x:Name="CategoryBox" Margin="0,6,0,0" DisplayMemberPath="Name" />
+                <TextBlock Text="Повтор" FontWeight="SemiBold" Margin="0,18,0,0" />
+                <ComboBox x:Name="RepeatBox" Margin="0,6,0,0" DisplayMemberPath="Name" />
+                <TextBlock Text="Повторять до" FontWeight="SemiBold" Margin="0,14,0,0" />
+                <DatePicker x:Name="RepeatUntilPicker" Margin="0,6,0,0" />
             </StackPanel>
         </Grid>
 

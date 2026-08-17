@@ -280,9 +280,84 @@ public partial class CalendarViewModel : ObservableObject
 
     private Dictionary<DateTime, List<Event>> GroupByDate(DateTime start, DateTime end)
     {
-        return _events.GetByRange(start, end)
+        return GetEventsInRange(start, end)
             .GroupBy(e => e.StartDate.Date)
             .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private List<Event> GetEventsInRange(DateTime start, DateTime end)
+    {
+        var result = new List<Event>(_events.GetByRange(start, end));
+
+        foreach (var ev in _events.GetAll().Where(e => e.Repeat != RepeatRule.None))
+        {
+            result.AddRange(ExpandOccurrences(ev, start, end));
+        }
+
+        return result;
+    }
+
+    private static IEnumerable<Event> ExpandOccurrences(Event ev, DateTime start, DateTime end)
+    {
+        var limit = ev.RepeatUntil ?? end;
+        if (limit > end)
+        {
+            limit = end;
+        }
+
+        var current = ev.StartDate;
+        while (current < start)
+        {
+            var next = NextOccurrence(current, ev.Repeat);
+            if (next <= current)
+            {
+                yield break;
+            }
+
+            current = next;
+        }
+
+        while (current <= limit)
+        {
+            yield return CloneForDate(ev, current);
+
+            var next = NextOccurrence(current, ev.Repeat);
+            if (next <= current)
+            {
+                yield break;
+            }
+
+            current = next;
+        }
+    }
+
+    private static DateTime NextOccurrence(DateTime current, RepeatRule repeat) => repeat switch
+    {
+        RepeatRule.Daily => current.AddDays(1),
+        RepeatRule.Weekly => current.AddDays(7),
+        RepeatRule.Monthly => current.AddMonths(1),
+        RepeatRule.Yearly => current.AddYears(1),
+        _ => current
+    };
+
+    private static Event CloneForDate(Event ev, DateTime date)
+    {
+        var duration = ev.EndDate.HasValue ? ev.EndDate.Value - ev.StartDate : TimeSpan.Zero;
+
+        return new Event
+        {
+            Id = ev.Id,
+            Title = ev.Title,
+            Description = ev.Description,
+            StartDate = date,
+            EndDate = ev.EndDate.HasValue ? date + duration : null,
+            AllDay = ev.AllDay,
+            Category = ev.Category,
+            Color = ev.Color,
+            Repeat = ev.Repeat,
+            RepeatUntil = ev.RepeatUntil,
+            CreatedAt = ev.CreatedAt
+        };
     }
 
     private void UpdateSelection()
@@ -296,7 +371,7 @@ public partial class CalendarViewModel : ObservableObject
     private void LoadSelectedDay(DateTime date)
     {
         SelectedDayEvents.Clear();
-        foreach (var ev in _events.GetByRange(date.Date, date.Date.AddDays(1)))
+        foreach (var ev in GetEventsInRange(date.Date, date.Date.AddDays(1)))
         {
             SelectedDayEvents.Add(ev);
         }
