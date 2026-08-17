@@ -24,6 +24,7 @@ public partial class App : Application
         services.AddSingleton<ISettingsRepository, SettingsRepository>();
         services.AddSingleton<NotificationService>();
         services.AddSingleton<ReminderScheduler>();
+        services.AddSingleton<WidgetService>();
         Services = services.BuildServiceProvider();
 
         Services.GetRequiredService<DatabaseService>().Initialize();
