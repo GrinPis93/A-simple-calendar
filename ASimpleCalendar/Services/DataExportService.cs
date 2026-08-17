@@ -41,11 +41,20 @@ public class DataExportService
 
     public void ImportFromFile(string path)
     {
-        var json = File.ReadAllText(path);
-        var data = JsonSerializer.Deserialize<ExportData>(json);
+        ExportData? data;
+        try
+        {
+            var json = File.ReadAllText(path);
+            data = JsonSerializer.Deserialize<ExportData>(json);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Не удалось прочитать файл импорта: " + ex.Message, ex);
+        }
+
         if (data is null)
         {
-            return;
+            throw new InvalidDataException("Файл импорта пуст или имеет неверный формат.");
         }
 
         foreach (var item in _events.GetAll())

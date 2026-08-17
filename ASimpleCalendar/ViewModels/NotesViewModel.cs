@@ -101,8 +101,8 @@ public partial class NotesViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             filtered = filtered.Where(n =>
-                n.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                n.Content.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (n.Title ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (n.Content ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 (n.Tags ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 

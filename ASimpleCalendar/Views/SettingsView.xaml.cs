@@ -80,7 +80,16 @@ public partial class SettingsView : UserControl
 
         if (dialog.ShowDialog() == true)
         {
-            App.Services.GetRequiredService<DataExportService>().ImportFromFile(dialog.FileName);
+            try
+            {
+                App.Services.GetRequiredService<DataExportService>().ImportFromFile(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка импорта:\n" + ex.Message, "ASimpleCalendar", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             MessageBox.Show("Импорт завершён. Приложение будет перезапущено.", "ASimpleCalendar", MessageBoxButton.OK, MessageBoxImage.Information);
             Restart();
         }
