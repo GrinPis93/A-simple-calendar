@@ -34,7 +34,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                <ui:CheckBox x:Name="AllDayBox" Content="Весь день" />
+                <ui:ToggleSwitch x:Name="AllDayBox" Content="Весь день" />
                 <TextBlock Text="Категория" FontWeight="SemiBold" Margin="0,18,0,0" />
                 <ui:ComboBox x:Name="CategoryBox" Margin="0,6,0,0" DisplayMemberPath="Name" />
             </StackPanel>
