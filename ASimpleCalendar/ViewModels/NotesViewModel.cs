@@ -7,6 +7,8 @@ namespace ASimpleCalendar.ViewModels;
 
 public partial class NotesViewModel : ObservableObject
 {
+    private const string AllCategory = "Все";
+
     private readonly INoteRepository _notes;
     private List<Note> _all = new();
 
@@ -14,9 +16,13 @@ public partial class NotesViewModel : ObservableObject
     private string _searchText = string.Empty;
 
     [ObservableProperty]
+    private string _selectedCategory = AllCategory;
+
+    [ObservableProperty]
     private Note? _selectedNote;
 
     public ObservableCollection<Note> Notes { get; } = new();
+    public ObservableCollection<string> Categories { get; } = new();
 
     public NotesViewModel(INoteRepository notes)
     {
@@ -25,6 +31,8 @@ public partial class NotesViewModel : ObservableObject
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+
+    partial void OnSelectedCategoryChanged(string value) => ApplyFilter();
 
     public void AddNote(Note item)
     {
@@ -56,6 +64,25 @@ public partial class NotesViewModel : ObservableObject
     public void Reload()
     {
         _all = _notes.GetAll();
+
+        var current = SelectedCategory;
+        Categories.Clear();
+        Categories.Add(AllCategory);
+        foreach (var category in _all
+                     .Select(n => n.Category)
+                     .Where(c => !string.IsNullOrWhiteSpace(c))
+                     .Distinct()
+                     .OrderBy(c => c))
+        {
+            Categories.Add(category!);
+        }
+
+        if (!Categories.Contains(current))
+        {
+            current = AllCategory;
+        }
+
+        SelectedCategory = current;
         ApplyFilter();
     }
 
@@ -65,9 +92,15 @@ public partial class NotesViewModel : ObservableObject
         Notes.Clear();
 
         IEnumerable<Note> filtered = _all;
+
+        if (SelectedCategory != AllCategory)
+        {
+            filtered = filtered.Where(n => n.Category == SelectedCategory);
+        }
+
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            filtered = _all.Where(n =>
+            filtered = filtered.Where(n =>
                 n.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 n.Content.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 (n.Tags ?? string.Empty).Contains(SearchText, StringComparison.OrdinalIgnoreCase));

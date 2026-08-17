@@ -53,6 +53,7 @@ public class DatabaseService
                 Content TEXT NOT NULL DEFAULT '',
                 Color TEXT NULL,
                 Tags TEXT NULL,
+                Category TEXT NULL,
                 IsPinned INTEGER NOT NULL DEFAULT 0,
                 CreatedAt TEXT NOT NULL,
                 UpdatedAt TEXT NOT NULL
@@ -79,6 +80,7 @@ public class DatabaseService
         // Миграции для баз, созданных в ранних версиях приложения.
         EnsureColumn(connection, "Events", "Repeat", "INTEGER NOT NULL DEFAULT 0");
         EnsureColumn(connection, "Events", "RepeatUntil", "TEXT NULL");
+        EnsureColumn(connection, "Notes", "Category", "TEXT NULL");
     }
 
     private static void EnsureColumn(SqliteConnection connection, string table, string column, string definition)

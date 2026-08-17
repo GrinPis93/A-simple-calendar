@@ -18,6 +18,7 @@ public partial class NoteDialog : Window
             TitleBox.Text = existing.Title;
             ContentBox.Text = existing.Content;
             TagsBox.Text = existing.Tags ?? string.Empty;
+            FolderBox.Text = existing.Category ?? string.Empty;
             PinBox.IsChecked = existing.IsPinned;
 
             if (existing.Color is not null)
@@ -44,6 +45,7 @@ public partial class NoteDialog : Window
             Title = TitleBox.Text.Trim(),
             Content = ContentBox.Text,
             Tags = string.IsNullOrWhiteSpace(TagsBox.Text) ? null : TagsBox.Text.Trim(),
+            Category = string.IsNullOrWhiteSpace(FolderBox.Text) ? null : FolderBox.Text.Trim(),
             Color = ColorBox.SelectedItem as string,
             IsPinned = PinBox.IsChecked == true,
             CreatedAt = DateTime.Now,

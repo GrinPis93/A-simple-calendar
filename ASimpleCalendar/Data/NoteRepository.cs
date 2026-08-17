@@ -35,14 +35,15 @@ public class NoteRepository : INoteRepository
         using var connection = _db.CreateConnection();
         using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO Notes (Title, Content, Color, Tags, IsPinned, CreatedAt, UpdatedAt)
-            VALUES (@title, @content, @color, @tags, @isPinned, @createdAt, @updatedAt);
+            INSERT INTO Notes (Title, Content, Color, Tags, Category, IsPinned, CreatedAt, UpdatedAt)
+            VALUES (@title, @content, @color, @tags, @category, @isPinned, @createdAt, @updatedAt);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("@title", item.Title);
         command.Parameters.AddWithValue("@content", item.Content);
         command.Parameters.AddWithValue("@color", (object?)item.Color ?? DBNull.Value);
         command.Parameters.AddWithValue("@tags", (object?)item.Tags ?? DBNull.Value);
+        command.Parameters.AddWithValue("@category", (object?)item.Category ?? DBNull.Value);
         command.Parameters.AddWithValue("@isPinned", item.IsPinned ? 1 : 0);
         command.Parameters.AddWithValue("@createdAt", item.CreatedAt.ToString("O"));
         command.Parameters.AddWithValue("@updatedAt", item.UpdatedAt.ToString("O"));
@@ -61,6 +62,7 @@ public class NoteRepository : INoteRepository
                 Content = @content,
                 Color = @color,
                 Tags = @tags,
+                Category = @category,
                 IsPinned = @isPinned,
                 UpdatedAt = @updatedAt
             WHERE Id = @id
@@ -69,6 +71,7 @@ public class NoteRepository : INoteRepository
         command.Parameters.AddWithValue("@content", item.Content);
         command.Parameters.AddWithValue("@color", (object?)item.Color ?? DBNull.Value);
         command.Parameters.AddWithValue("@tags", (object?)item.Tags ?? DBNull.Value);
+        command.Parameters.AddWithValue("@category", (object?)item.Category ?? DBNull.Value);
         command.Parameters.AddWithValue("@isPinned", item.IsPinned ? 1 : 0);
         command.Parameters.AddWithValue("@updatedAt", item.UpdatedAt.ToString("O"));
         command.Parameters.AddWithValue("@id", item.Id);
@@ -104,6 +107,7 @@ public class NoteRepository : INoteRepository
             Content = reader.GetString(reader.GetOrdinal("Content")),
             Color = reader.IsDBNull(reader.GetOrdinal("Color")) ? null : reader.GetString(reader.GetOrdinal("Color")),
             Tags = reader.IsDBNull(reader.GetOrdinal("Tags")) ? null : reader.GetString(reader.GetOrdinal("Tags")),
+            Category = reader.IsDBNull(reader.GetOrdinal("Category")) ? null : reader.GetString(reader.GetOrdinal("Category")),
             IsPinned = reader.GetInt32(reader.GetOrdinal("IsPinned")) == 1,
             CreatedAt = EventRepository.ParseDate(reader.GetString(reader.GetOrdinal("CreatedAt"))),
             UpdatedAt = EventRepository.ParseDate(reader.GetString(reader.GetOrdinal("UpdatedAt")))

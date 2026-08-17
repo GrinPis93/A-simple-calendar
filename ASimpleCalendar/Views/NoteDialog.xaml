@@ -32,6 +32,9 @@
         <TextBlock Text="Теги (через запятую)" FontWeight="SemiBold" Margin="0,16,0,0" />
         <ui:TextBox x:Name="TagsBox" Margin="0,6,0,0" />
 
+        <TextBlock Text="Папка" FontWeight="SemiBold" Margin="0,16,0,0" />
+        <ui:TextBox x:Name="FolderBox" Margin="0,6,0,0" />
+
         <Grid Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />

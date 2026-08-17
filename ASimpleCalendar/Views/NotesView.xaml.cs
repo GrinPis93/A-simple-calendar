@@ -1,8 +1,10 @@
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ASimpleCalendar.Data;
 using ASimpleCalendar.Models;
+using ASimpleCalendar.Services;
 using ASimpleCalendar.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +19,29 @@ public partial class NotesView : UserControl
         InitializeComponent();
         _viewModel = new NotesViewModel(App.Services.GetRequiredService<INoteRepository>());
         DataContext = _viewModel;
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        RebuildContent();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(NotesViewModel.SelectedNote))
+        {
+            RebuildContent();
+        }
+    }
+
+    private void RebuildContent()
+    {
+        ContentText.Inlines.Clear();
+
+        if (_viewModel.SelectedNote is { } note)
+        {
+            foreach (var inline in MarkdownConverter.ToInlines(note.Content))
+            {
+                ContentText.Inlines.Add(inline);
+            }
+        }
     }
 
     private void AddNote_Click(object sender, RoutedEventArgs e)
