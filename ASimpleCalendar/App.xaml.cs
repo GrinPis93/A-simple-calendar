@@ -58,6 +58,21 @@ public partial class App : Application
         _mainWindow.Show();
 
         _tray = new TrayService(_mainWindow, Services.GetRequiredService<WidgetService>());
+
+        var hotKeys = new HotKeyService();
+        hotKeys.Register(
+            _mainWindow,
+            onShow: () => _tray?.ShowMainWindow(),
+            onNewNote: () =>
+            {
+                _tray?.ShowMainWindow();
+                _mainWindow.ShowNotesAndCreate();
+            },
+            onNewReminder: () =>
+            {
+                _tray?.ShowMainWindow();
+                _mainWindow.ShowRemindersAndCreate();
+            });
     }
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

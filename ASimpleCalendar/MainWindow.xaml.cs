@@ -63,6 +63,25 @@ public partial class MainWindow : FluentWindow
         }
     }
 
+    public void ShowMain()
+    {
+        Show();
+        WindowState = WindowState.Normal;
+        Activate();
+    }
+
+    public void ShowNotesAndCreate()
+    {
+        ShowPage("notes");
+        ((NotesView)_pages["notes"]).CreateNote();
+    }
+
+    public void ShowRemindersAndCreate()
+    {
+        ShowPage("reminders");
+        ((RemindersView)_pages["reminders"]).CreateReminder();
+    }
+
     protected override void OnClosing(CancelEventArgs e)
     {
         base.OnClosing(e);

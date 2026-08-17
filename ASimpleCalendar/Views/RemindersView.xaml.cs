@@ -21,6 +21,11 @@ public partial class RemindersView : UserControl
 
     private void AddReminder_Click(object sender, RoutedEventArgs e)
     {
+        CreateReminder();
+    }
+
+    public void CreateReminder()
+    {
         var dialog = new ReminderDialog
         {
             Owner = Window.GetWindow(this)!

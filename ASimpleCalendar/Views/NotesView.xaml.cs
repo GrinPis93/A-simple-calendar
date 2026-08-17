@@ -46,6 +46,11 @@ public partial class NotesView : UserControl
 
     private void AddNote_Click(object sender, RoutedEventArgs e)
     {
+        CreateNote();
+    }
+
+    public void CreateNote()
+    {
         var dialog = new NoteDialog
         {
             Owner = Window.GetWindow(this)!
