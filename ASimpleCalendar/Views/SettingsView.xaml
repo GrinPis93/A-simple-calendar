@@ -57,6 +57,40 @@
                     <ui:ToggleSwitch Content="Закрепить позицию" Margin="0,14,0,0" IsChecked="{Binding WidgetLocked}" />
                 </StackPanel>
             </Border>
+
+            <TextBlock Text="Категории событий" FontWeight="SemiBold" Margin="0,28,0,0" />
+            <Border CornerRadius="8"
+                    Padding="16"
+                    Margin="0,10,0,0"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <StackPanel>
+                    <ListBox x:Name="CategoryList"
+                             ItemsSource="{Binding Categories}"
+                             MaxHeight="160"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <Border Width="12"
+                                            Height="12"
+                                            CornerRadius="6"
+                                            Background="{Binding Color, Converter={StaticResource StringToBrush}}"
+                                            VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <ui:Button Content="Добавить" Click="AddCategory_Click" />
+                        <ui:Button Content="Удалить"
+                                   Appearance="Danger"
+                                   Margin="8,0,0,0"
+                                   Click="RemoveCategory_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>

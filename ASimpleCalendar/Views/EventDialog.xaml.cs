@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Windows;
 using ASimpleCalendar.Models;
+using ASimpleCalendar.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ASimpleCalendar.Views;
 
@@ -20,7 +22,7 @@ public partial class EventDialog : Window
     public EventDialog(Event? existing = null, DateTime? initialDate = null)
     {
         InitializeComponent();
-        CategoryBox.ItemsSource = CategoryPalette.Items;
+        CategoryBox.ItemsSource = App.Services.GetRequiredService<CategoryService>().GetCategories();
         RepeatBox.ItemsSource = RepeatOptions;
         RepeatBox.SelectedIndex = 0;
 
@@ -36,7 +38,7 @@ public partial class EventDialog : Window
 
             if (existing.Color is not null)
             {
-                CategoryBox.SelectedItem = CategoryPalette.Items.FirstOrDefault(c => c.Color == existing.Color);
+                CategoryBox.SelectedItem = CategoryBox.Items.OfType<CategoryItem>().FirstOrDefault(c => c.Color == existing.Color);
             }
 
             RepeatBox.SelectedItem = RepeatOptions.FirstOrDefault(o => o.Value == existing.Repeat);

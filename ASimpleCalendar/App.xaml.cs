@@ -46,6 +46,7 @@ public partial class App : Application
         services.AddSingleton<ReminderScheduler>();
         services.AddSingleton<WidgetService>();
         services.AddSingleton<AutoStartService>();
+        services.AddSingleton<CategoryService>();
         Services = services.BuildServiceProvider();
 
         Services.GetRequiredService<DatabaseService>().Initialize();

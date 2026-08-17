@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using ASimpleCalendar.Data;
 using ASimpleCalendar.Models;
@@ -18,6 +19,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly WidgetService _widgets;
     private readonly ISettingsRepository _settings;
     private readonly AutoStartService _autoStart;
+    private readonly CategoryService _categoryService;
 
     [ObservableProperty]
     private ThemeOption _selectedThemeOption = ThemeOptions[0];
@@ -46,11 +48,14 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _widgetLocked;
 
-    public SettingsViewModel(WidgetService widgets, ISettingsRepository settings, AutoStartService autoStart)
+    public ObservableCollection<CategoryItem> Categories { get; } = new();
+
+    public SettingsViewModel(WidgetService widgets, ISettingsRepository settings, AutoStartService autoStart, CategoryService categoryService)
     {
         _widgets = widgets;
         _settings = settings;
         _autoStart = autoStart;
+        _categoryService = categoryService;
 
         var mode = ThemeHelper.Parse(settings.Get("theme"));
         _selectedThemeOption = ThemeOptions.First(o => o.Value == mode);
@@ -62,6 +67,33 @@ public partial class SettingsViewModel : ObservableObject
         _widgetScale = widgets.Scale;
         _widgetTopmost = widgets.Topmost;
         _widgetLocked = widgets.Locked;
+
+        ReloadCategories();
+    }
+
+    public void ReloadCategories()
+    {
+        Categories.Clear();
+        foreach (var category in _categoryService.GetCategories())
+        {
+            Categories.Add(category);
+        }
+    }
+
+    public void AddCategory(CategoryItem item)
+    {
+        var list = _categoryService.GetCategories();
+        list.Add(item);
+        _categoryService.SaveCategories(list);
+        ReloadCategories();
+    }
+
+    public void RemoveCategory(CategoryItem item)
+    {
+        var list = _categoryService.GetCategories();
+        list.RemoveAll(c => c.Name == item.Name);
+        _categoryService.SaveCategories(list);
+        ReloadCategories();
     }
 
     public IReadOnlyList<ThemeOption> ThemeChoices => ThemeOptions;
