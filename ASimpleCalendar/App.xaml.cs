@@ -9,8 +9,10 @@ namespace ASimpleCalendar;
 public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; } = null!;
+    public static bool IsShuttingDown { get; private set; }
 
     private MainWindow? _mainWindow;
+    private TrayService? _tray;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -25,15 +27,25 @@ public partial class App : Application
         services.AddSingleton<NotificationService>();
         services.AddSingleton<ReminderScheduler>();
         services.AddSingleton<WidgetService>();
+        services.AddSingleton<AutoStartService>();
         Services = services.BuildServiceProvider();
 
         Services.GetRequiredService<DatabaseService>().Initialize();
         Services.GetRequiredService<ReminderScheduler>();
 
-        // Тёмная тема по умолчанию; в дальнейшем будет читаться из настроек.
-        ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+        var settings = Services.GetRequiredService<ISettingsRepository>();
+        var theme = settings.Get("theme");
+        ApplicationThemeManager.Apply(theme == "light" ? ApplicationTheme.Light : ApplicationTheme.Dark);
 
         _mainWindow = new MainWindow();
         _mainWindow.Show();
+
+        _tray = new TrayService(_mainWindow, Services.GetRequiredService<WidgetService>());
+    }
+
+    public static void ShutdownApplication()
+    {
+        IsShuttingDown = true;
+        Current.Shutdown();
     }
 }

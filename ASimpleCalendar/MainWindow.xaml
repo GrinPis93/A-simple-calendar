@@ -30,13 +30,6 @@
                            Margin="10,0,0,0"
                            VerticalAlignment="Center" />
             </StackPanel>
-            <ui:Button x:Name="ThemeButton"
-                       Grid.Column="1"
-                       HorizontalAlignment="Right"
-                       Appearance="Secondary"
-                       Icon="WeatherMoon24"
-                       ToolTip="Переключить тему"
-                       Click="ThemeButton_Click" />
         </Grid>
 
         <ui:NavigationView

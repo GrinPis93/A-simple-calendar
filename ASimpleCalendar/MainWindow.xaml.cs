@@ -1,14 +1,16 @@
+using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using ASimpleCalendar.Views;
-using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace ASimpleCalendar;
 
 public partial class MainWindow : FluentWindow
 {
-    private readonly System.Collections.Generic.Dictionary<string, System.Windows.Controls.UserControl> _pages = new();
+    private readonly Dictionary<string, UserControl> _pages = new();
 
     public MainWindow()
     {
@@ -28,6 +30,17 @@ public partial class MainWindow : FluentWindow
         MainContent.Content = _pages["calendar"];
     }
 
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+
+        if (!App.IsShuttingDown)
+        {
+            e.Cancel = true;
+            Hide();
+        }
+    }
+
     private void RootNavigation_SelectionChanged(object sender, RoutedEventArgs e)
     {
         if (RootNavigation.SelectedItem is NavigationViewItem { Tag: string tag } &&
@@ -35,16 +48,5 @@ public partial class MainWindow : FluentWindow
         {
             MainContent.Content = page;
         }
-    }
-
-    private void ThemeButton_Click(object sender, RoutedEventArgs e)
-    {
-        var current = ApplicationThemeManager.GetAppTheme();
-        var next = current == ApplicationTheme.Dark ? ApplicationTheme.Light : ApplicationTheme.Dark;
-
-        ApplicationThemeManager.Apply(next);
-        ThemeButton.Icon = new SymbolIcon(next == ApplicationTheme.Dark
-            ? SymbolRegular.WeatherMoon24
-            : SymbolRegular.WeatherSunny24);
     }
 }
