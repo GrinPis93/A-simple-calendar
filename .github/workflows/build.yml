@@ -31,8 +31,9 @@ jobs:
         shell: bash
         continue-on-error: true
         run: |
-          dotnet test ASimpleCalendar.Tests/ASimpleCalendar.Tests.csproj -c Release --no-restore --logger "console;verbosity=normal"
-          echo "::error::TEST_EXIT_CODE=$?"
+          echo "::error::TEST_START"
+          dotnet test ASimpleCalendar.Tests/ASimpleCalendar.Tests.csproj -c Release --no-restore
+          echo "::error::TEST_END_EXIT=$?"
 
       - name: Publish (win-x64, self-contained)
         shell: bash
