@@ -6,7 +6,10 @@ public static class EventOccurrenceService
 {
     public static IEnumerable<Event> Expand(Event ev, DateTime start, DateTime end)
     {
-        var limit = ev.RepeatUntil ?? end;
+        var limit = ev.RepeatUntil.HasValue
+            ? ev.RepeatUntil.Value.Date.AddDays(1)
+            : end;
+
         if (limit > end)
         {
             limit = end;

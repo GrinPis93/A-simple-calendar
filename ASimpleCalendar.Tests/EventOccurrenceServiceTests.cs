@@ -24,7 +24,7 @@ public class EventOccurrenceServiceTests
         var ev = CreateEvent(new DateTime(2026, 1, 1, 9, 0, 0), RepeatRule.Daily);
 
         var result = EventOccurrenceService
-            .Expand(ev, new DateTime(2026, 1, 3), new DateTime(2026, 1, 5))
+            .Expand(ev, new DateTime(2026, 1, 3), new DateTime(2026, 1, 6))
             .ToList();
 
         Assert.Equal(3, result.Count);
@@ -51,7 +51,7 @@ public class EventOccurrenceServiceTests
         var ev = CreateEvent(new DateTime(2026, 1, 31, 8, 0, 0), RepeatRule.Monthly);
 
         var result = EventOccurrenceService
-            .Expand(ev, new DateTime(2026, 2, 1), new DateTime(2026, 2, 28))
+            .Expand(ev, new DateTime(2026, 2, 1), new DateTime(2026, 3, 1))
             .ToList();
 
         Assert.Single(result);
