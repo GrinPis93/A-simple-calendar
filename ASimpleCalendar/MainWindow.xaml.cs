@@ -62,9 +62,37 @@ public partial class MainWindow : FluentWindow
 
     private void ShowPage(string tag)
     {
-        if (_pages.TryGetValue(tag, out var page))
+        if (!_pages.TryGetValue(tag, out var page))
         {
-            MainContent.Content = page;
+            return;
+        }
+
+        var item = FindItem(tag);
+        if (item is not null)
+        {
+            SetActiveItem(item);
+        }
+
+        MainContent.Content = page;
+    }
+
+    private NavigationViewItem? FindItem(string tag)
+    {
+        return RootNavigation.MenuItems.OfType<NavigationViewItem>()
+            .Concat(RootNavigation.FooterMenuItems.OfType<NavigationViewItem>())
+            .FirstOrDefault(i => i.Tag is string t && t == tag);
+    }
+
+    private void SetActiveItem(NavigationViewItem active)
+    {
+        foreach (var item in RootNavigation.MenuItems.OfType<NavigationViewItem>())
+        {
+            item.IsActive = item == active;
+        }
+
+        foreach (var item in RootNavigation.FooterMenuItems.OfType<NavigationViewItem>())
+        {
+            item.IsActive = item == active;
         }
     }
 
