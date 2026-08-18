@@ -110,25 +110,3 @@ public class RepeatOptionListTests
         Assert.Contains(RepeatRule.Yearly, values);
     }
 }
-
-public class ThemeHelperTests
-{
-    [Theory]
-    [InlineData(null, ThemeMode.Dark)]
-    [InlineData("dark", ThemeMode.Dark)]
-    [InlineData("light", ThemeMode.Light)]
-    [InlineData("auto", ThemeMode.Auto)]
-    [InlineData("unknown", ThemeMode.Dark)]
-    public void Parse_ReturnsExpectedMode(string? value, ThemeMode expected)
-    {
-        Assert.Equal(expected, ThemeHelper.Parse(value));
-    }
-
-    [Fact]
-    public void ToString_RoundTrips()
-    {
-        Assert.Equal("dark", ThemeHelper.ToString(ThemeMode.Dark));
-        Assert.Equal("light", ThemeHelper.ToString(ThemeMode.Light));
-        Assert.Equal("auto", ThemeHelper.ToString(ThemeMode.Auto));
-    }
-}

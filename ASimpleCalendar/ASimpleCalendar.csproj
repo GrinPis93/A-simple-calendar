@@ -25,4 +25,8 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ASimpleCalendar.Core\ASimpleCalendar.Core.csproj" />
+  </ItemGroup>
+
 </Project>
