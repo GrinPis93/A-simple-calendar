@@ -11,6 +11,7 @@ namespace ASimpleCalendar.ViewModels;
 public partial class CalendarViewModel : ObservableObject
 {
     private readonly IEventRepository _events;
+    private List<Event>? _repeatingCache;
 
     [ObservableProperty]
     private CalendarViewMode _viewMode = CalendarViewMode.Month;
@@ -169,12 +170,14 @@ public partial class CalendarViewModel : ObservableObject
     public void AddEvent(Event item)
     {
         _events.Add(item);
+        InvalidateCache();
         Rebuild();
     }
 
     public void UpdateEvent(Event item)
     {
         _events.Update(item);
+        InvalidateCache();
         Rebuild();
     }
 
@@ -182,6 +185,7 @@ public partial class CalendarViewModel : ObservableObject
     {
         _events.Delete(item.Id);
         SelectedEvent = null;
+        InvalidateCache();
         Rebuild();
     }
 
@@ -200,6 +204,7 @@ public partial class CalendarViewModel : ObservableObject
         }
 
         _events.Update(item);
+        InvalidateCache();
         Rebuild();
     }
 
@@ -313,12 +318,22 @@ public partial class CalendarViewModel : ObservableObject
     {
         var result = new List<Event>(_events.GetByRange(start, end));
 
-        foreach (var ev in _events.GetRepeating())
+        foreach (var ev in GetRepeatingEvents())
         {
             result.AddRange(EventOccurrenceService.Expand(ev, start, end));
         }
 
         return result;
+    }
+
+    private List<Event> GetRepeatingEvents()
+    {
+        return _repeatingCache ??= _events.GetRepeating();
+    }
+
+    private void InvalidateCache()
+    {
+        _repeatingCache = null;
     }
 
     private void UpdateSelection()
