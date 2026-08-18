@@ -98,15 +98,53 @@ public class DataExportService
 
     public string CreateBackup()
     {
-        var directory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ASimpleCalendar",
-            "backups");
-
+        var directory = BackupDirectory;
         Directory.CreateDirectory(directory);
 
         var path = Path.Combine(directory, $"backup_{DateTime.Now:yyyyMMdd_HHmmss}.json");
         ExportToFile(path);
         return path;
+    }
+
+    public void EnsureDailyBackup()
+    {
+        var today = DateTime.Today.ToString("yyyy-MM-dd");
+        if (_settings.Get("lastBackup") == today)
+        {
+            return;
+        }
+
+        CreateBackup();
+        _settings.Set("lastBackup", today);
+        PruneOldBackups(keep: 10);
+    }
+
+    private static string BackupDirectory => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "ASimpleCalendar",
+        "backups");
+
+    private static void PruneOldBackups(int keep)
+    {
+        try
+        {
+            if (!Directory.Exists(BackupDirectory))
+            {
+                return;
+            }
+
+            var files = Directory.GetFiles(BackupDirectory, "backup_*.json")
+                .OrderByDescending(f => f)
+                .ToList();
+
+            foreach (var file in files.Skip(keep))
+            {
+                File.Delete(file);
+            }
+        }
+        catch
+        {
+            // очистка старых бэкапов не критична
+        }
     }
 }

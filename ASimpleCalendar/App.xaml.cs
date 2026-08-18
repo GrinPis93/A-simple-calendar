@@ -51,7 +51,16 @@ public partial class App : Application
         services.AddSingleton<DataExportService>();
         Services = services.BuildServiceProvider();
 
-        Services.GetRequiredService<DatabaseService>().Initialize();
+        var database = Services.GetRequiredService<DatabaseService>();
+        database.Initialize();
+
+        if (!database.CheckIntegrity())
+        {
+            AppLogger.Log("База данных повреждена (PRAGMA quick_check != ok).");
+        }
+
+        Services.GetRequiredService<DataExportService>().EnsureDailyBackup();
+
         Services.GetRequiredService<ReminderScheduler>();
 
         var settings = Services.GetRequiredService<ISettingsRepository>();

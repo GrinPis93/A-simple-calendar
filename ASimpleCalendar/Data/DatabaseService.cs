@@ -88,6 +88,21 @@ public class DatabaseService
         EnsureColumn(connection, "Notes", "Category", "TEXT NULL");
     }
 
+    public bool CheckIntegrity()
+    {
+        try
+        {
+            using var connection = CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA quick_check;";
+            return command.ExecuteScalar()?.ToString() == "ok";
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private static void EnsureColumn(SqliteConnection connection, string table, string column, string definition)
     {
         using var check = connection.CreateCommand();
