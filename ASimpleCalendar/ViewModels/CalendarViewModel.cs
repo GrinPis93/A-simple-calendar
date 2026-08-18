@@ -42,6 +42,9 @@ public partial class CalendarViewModel : ObservableObject
     [ObservableProperty]
     private bool _showSidePanel = true;
 
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
     public ObservableCollection<DayCellViewModel> Days { get; } = new();
     public ObservableCollection<DayColumnViewModel> WeekDays { get; } = new();
     public ObservableCollection<Event> SelectedDayEvents { get; } = new();
@@ -98,6 +101,8 @@ public partial class CalendarViewModel : ObservableObject
             LoadSelectedDay(date);
         }
     }
+
+    partial void OnSearchTextChanged(string value) => ApplySearch();
 
     [RelayCommand]
     private void SetMonthView() => ViewMode = CalendarViewMode.Month;
@@ -328,6 +333,25 @@ public partial class CalendarViewModel : ObservableObject
     {
         SelectedDayEvents.Clear();
         foreach (var ev in GetEventsInRange(date.Date, date.Date.AddDays(1)))
+        {
+            SelectedDayEvents.Add(ev);
+        }
+    }
+
+    private void ApplySearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            LoadSelectedDay(SelectedDate ?? DateTime.Today);
+            return;
+        }
+
+        var query = SearchText.Trim();
+        SelectedDayEvents.Clear();
+        foreach (var ev in _events.GetAll().Where(e =>
+                     (e.Title ?? string.Empty).Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                     (e.Description ?? string.Empty).Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                     (e.Category ?? string.Empty).Contains(query, StringComparison.OrdinalIgnoreCase)))
         {
             SelectedDayEvents.Add(ev);
         }

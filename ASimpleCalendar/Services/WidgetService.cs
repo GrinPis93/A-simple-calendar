@@ -116,8 +116,8 @@ public class WidgetService
 
         if (double.TryParse(leftText, System.Globalization.NumberStyles.Any, culture, out var left) &&
             double.TryParse(topText, System.Globalization.NumberStyles.Any, culture, out var top) &&
-            left >= SystemParameters.VirtualScreen.Left &&
-            top >= SystemParameters.VirtualScreen.Top)
+            left >= SystemParameters.VirtualScreenLeft &&
+            top >= SystemParameters.VirtualScreenTop)
         {
             window.Left = left;
             window.Top = top;

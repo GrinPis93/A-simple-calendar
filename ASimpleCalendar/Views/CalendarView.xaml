@@ -67,6 +67,12 @@
                     <ui:Button Content="Неделя" Margin="4,0,0,0" Command="{Binding SetWeekViewCommand}" />
                     <ui:Button Content="День" Margin="4,0,0,0" Command="{Binding SetDayViewCommand}" />
                 </StackPanel>
+
+                <ui:TextBox Width="180"
+                            Margin="16,0,0,0"
+                            VerticalAlignment="Center"
+                            PlaceholderText="Поиск событий..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
 
             <ui:Button Content="Добавить событие"

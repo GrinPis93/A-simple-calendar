@@ -12,5 +12,7 @@ public class Event
     public string? Color { get; set; }
     public RepeatRule Repeat { get; set; }
     public DateTime? RepeatUntil { get; set; }
+    public int RemindBeforeMinutes { get; set; }
+    public DateTime? NotifiedAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

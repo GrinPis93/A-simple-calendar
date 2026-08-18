@@ -41,6 +41,8 @@
                 <ComboBox x:Name="RepeatBox" Margin="0,6,0,0" DisplayMemberPath="Name" />
                 <TextBlock Text="Повторять до" FontWeight="SemiBold" Margin="0,14,0,0" />
                 <DatePicker x:Name="RepeatUntilPicker" Margin="0,6,0,0" />
+                <TextBlock Text="Напомнить" FontWeight="SemiBold" Margin="0,14,0,0" />
+                <ComboBox x:Name="RemindBox" Margin="0,6,0,0" DisplayMemberPath="Name" />
             </StackPanel>
         </Grid>
 

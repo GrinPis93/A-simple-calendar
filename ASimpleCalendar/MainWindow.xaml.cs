@@ -116,10 +116,10 @@ public partial class MainWindow : FluentWindow
 
         if (double.TryParse(settings.Get("window.left"), NumberStyles.Any, culture, out var left) &&
             double.TryParse(settings.Get("window.top"), NumberStyles.Any, culture, out var top) &&
-            left >= SystemParameters.VirtualScreen.Left &&
-            top >= SystemParameters.VirtualScreen.Top &&
-            left <= SystemParameters.VirtualScreen.Right - 100 &&
-            top <= SystemParameters.VirtualScreen.Bottom - 100)
+            left >= SystemParameters.VirtualScreenLeft &&
+            top >= SystemParameters.VirtualScreenTop &&
+            left <= SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth - 100 &&
+            top <= SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight - 100)
         {
             Left = left;
             Top = top;

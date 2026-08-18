@@ -44,6 +44,8 @@ public class DatabaseService
                 Color TEXT NULL,
                 Repeat INTEGER NOT NULL DEFAULT 0,
                 RepeatUntil TEXT NULL,
+                RemindBeforeMinutes INTEGER NOT NULL DEFAULT 0,
+                NotifiedAt TEXT NULL,
                 CreatedAt TEXT NOT NULL
             );
 
@@ -85,6 +87,8 @@ public class DatabaseService
         // Миграции для баз, созданных в ранних версиях приложения.
         EnsureColumn(connection, "Events", "Repeat", "INTEGER NOT NULL DEFAULT 0");
         EnsureColumn(connection, "Events", "RepeatUntil", "TEXT NULL");
+        EnsureColumn(connection, "Events", "RemindBeforeMinutes", "INTEGER NOT NULL DEFAULT 0");
+        EnsureColumn(connection, "Events", "NotifiedAt", "TEXT NULL");
         EnsureColumn(connection, "Notes", "Category", "TEXT NULL");
     }
 

@@ -36,6 +36,21 @@ public class NotificationService
         }
     }
 
+    public void ShowEventToast(string title, string message)
+    {
+        try
+        {
+            new ToastContentBuilder()
+                .AddText(title)
+                .AddText(message)
+                .Show();
+        }
+        catch
+        {
+            // Уведомления не должны ронять приложение.
+        }
+    }
+
     private void OnToastActivated(ToastNotificationActivatedEventArgsCompat e)
     {
         var args = ToastArguments.Parse(e.Argument);

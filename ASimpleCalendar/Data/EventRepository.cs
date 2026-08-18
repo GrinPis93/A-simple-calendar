@@ -28,6 +28,14 @@ public class EventRepository : IEventRepository
         return ReadAll(command);
     }
 
+    public List<Event> GetPendingReminders()
+    {
+        using var connection = _db.CreateConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT * FROM Events WHERE RemindBeforeMinutes > 0 AND NotifiedAt IS NULL ORDER BY StartDate";
+        return ReadAll(command);
+    }
+
     public List<Event> GetByRange(DateTime start, DateTime end)
     {
         using var connection = _db.CreateConnection();
@@ -57,8 +65,8 @@ public class EventRepository : IEventRepository
         using var connection = _db.CreateConnection();
         using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO Events (Title, Description, StartDate, EndDate, AllDay, Category, Color, Repeat, RepeatUntil, CreatedAt)
-            VALUES (@title, @description, @startDate, @endDate, @allDay, @category, @color, @repeat, @repeatUntil, @createdAt);
+            INSERT INTO Events (Title, Description, StartDate, EndDate, AllDay, Category, Color, Repeat, RepeatUntil, RemindBeforeMinutes, NotifiedAt, CreatedAt)
+            VALUES (@title, @description, @startDate, @endDate, @allDay, @category, @color, @repeat, @repeatUntil, @remindBefore, @notifiedAt, @createdAt);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("@title", item.Title);
@@ -70,6 +78,8 @@ public class EventRepository : IEventRepository
         command.Parameters.AddWithValue("@color", (object?)item.Color ?? DBNull.Value);
         command.Parameters.AddWithValue("@repeat", (int)item.Repeat);
         command.Parameters.AddWithValue("@repeatUntil", item.RepeatUntil.HasValue ? item.RepeatUntil.Value.ToString("O") : DBNull.Value);
+        command.Parameters.AddWithValue("@remindBefore", item.RemindBeforeMinutes);
+        command.Parameters.AddWithValue("@notifiedAt", item.NotifiedAt.HasValue ? item.NotifiedAt.Value.ToString("O") : DBNull.Value);
         command.Parameters.AddWithValue("@createdAt", item.CreatedAt.ToString("O"));
 
         item.Id = Convert.ToInt32(command.ExecuteScalar());
@@ -90,7 +100,9 @@ public class EventRepository : IEventRepository
                 Category = @category,
                 Color = @color,
                 Repeat = @repeat,
-                RepeatUntil = @repeatUntil
+                RepeatUntil = @repeatUntil,
+                RemindBeforeMinutes = @remindBefore,
+                NotifiedAt = @notifiedAt
             WHERE Id = @id
             """;
         command.Parameters.AddWithValue("@title", item.Title);
@@ -102,6 +114,8 @@ public class EventRepository : IEventRepository
         command.Parameters.AddWithValue("@color", (object?)item.Color ?? DBNull.Value);
         command.Parameters.AddWithValue("@repeat", (int)item.Repeat);
         command.Parameters.AddWithValue("@repeatUntil", item.RepeatUntil.HasValue ? item.RepeatUntil.Value.ToString("O") : DBNull.Value);
+        command.Parameters.AddWithValue("@remindBefore", item.RemindBeforeMinutes);
+        command.Parameters.AddWithValue("@notifiedAt", item.NotifiedAt.HasValue ? item.NotifiedAt.Value.ToString("O") : DBNull.Value);
         command.Parameters.AddWithValue("@id", item.Id);
         command.ExecuteNonQuery();
     }
@@ -140,6 +154,8 @@ public class EventRepository : IEventRepository
             Color = reader.IsDBNull(reader.GetOrdinal("Color")) ? null : reader.GetString(reader.GetOrdinal("Color")),
             Repeat = (RepeatRule)reader.GetInt32(reader.GetOrdinal("Repeat")),
             RepeatUntil = reader.IsDBNull(reader.GetOrdinal("RepeatUntil")) ? null : ParseDate(reader.GetString(reader.GetOrdinal("RepeatUntil"))),
+            RemindBeforeMinutes = reader.GetInt32(reader.GetOrdinal("RemindBeforeMinutes")),
+            NotifiedAt = reader.IsDBNull(reader.GetOrdinal("NotifiedAt")) ? null : ParseDate(reader.GetString(reader.GetOrdinal("NotifiedAt"))),
             CreatedAt = ParseDate(reader.GetString(reader.GetOrdinal("CreatedAt")))
         };
     }

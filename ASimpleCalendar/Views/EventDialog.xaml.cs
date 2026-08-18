@@ -8,6 +8,18 @@ namespace ASimpleCalendar.Views;
 
 public partial class EventDialog : Window
 {
+    private static readonly RemindOption[] RemindOptions =
+    {
+        new("Не напоминать", 0),
+        new("За 5 минут", 5),
+        new("За 15 минут", 15),
+        new("За 30 минут", 30),
+        new("За 1 час", 60),
+        new("За 1 день", 1440)
+    };
+
+    private record RemindOption(string Name, int Minutes);
+
     public Event? Result { get; private set; }
 
     public EventDialog(Event? existing = null, DateTime? initialDate = null)
@@ -16,6 +28,8 @@ public partial class EventDialog : Window
         CategoryBox.ItemsSource = App.Services.GetRequiredService<CategoryService>().GetCategories();
         RepeatBox.ItemsSource = RepeatOptionList.All;
         RepeatBox.SelectedIndex = 0;
+        RemindBox.ItemsSource = RemindOptions;
+        RemindBox.SelectedIndex = 0;
 
         if (existing is not null)
         {
@@ -33,6 +47,7 @@ public partial class EventDialog : Window
             }
 
             RepeatBox.SelectedItem = RepeatOptionList.All.FirstOrDefault(o => o.Value == existing.Repeat);
+            RemindBox.SelectedItem = RemindOptions.FirstOrDefault(o => o.Minutes == existing.RemindBeforeMinutes);
         }
         else
         {
@@ -77,6 +92,7 @@ public partial class EventDialog : Window
             Color = category?.Color,
             Repeat = (RepeatBox.SelectedItem as RepeatOption)?.Value ?? RepeatRule.None,
             RepeatUntil = RepeatUntilPicker.SelectedDate,
+            RemindBeforeMinutes = (RemindBox.SelectedItem as RemindOption)?.Minutes ?? 0,
             CreatedAt = DateTime.Now
         };
 

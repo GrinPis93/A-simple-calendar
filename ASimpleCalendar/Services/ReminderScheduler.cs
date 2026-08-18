@@ -7,12 +7,14 @@ namespace ASimpleCalendar.Services;
 public class ReminderScheduler
 {
     private readonly IReminderRepository _reminders;
+    private readonly IEventRepository _events;
     private readonly NotificationService _notifications;
     private readonly DispatcherTimer _timer;
 
-    public ReminderScheduler(IReminderRepository reminders, NotificationService notifications)
+    public ReminderScheduler(IReminderRepository reminders, IEventRepository events, NotificationService notifications)
     {
         _reminders = reminders;
+        _events = events;
         _notifications = notifications;
         _timer = new DispatcherTimer
         {
@@ -51,6 +53,19 @@ public class ReminderScheduler
             }
 
             _reminders.Update(reminder);
+        }
+
+        foreach (var ev in _events.GetPendingReminders())
+        {
+            if (ev.StartDate.AddMinutes(-ev.RemindBeforeMinutes) > now)
+            {
+                continue;
+            }
+
+            _notifications.ShowEventToast(ev.Title, $"Начало в {ev.StartDate:HH:mm}");
+
+            ev.NotifiedAt = now;
+            _events.Update(ev);
         }
     }
 }
