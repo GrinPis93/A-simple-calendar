@@ -60,6 +60,15 @@
             </Grid>
 
             <UniformGrid x:Name="DayGrid" Grid.Row="2" Columns="7" />
+
+            <Thumb Width="14"
+                   Height="14"
+                   Grid.RowSpan="3"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Cursor="SizeNWSE"
+                   Background="Transparent"
+                   DragDelta="ResizeGrip_DragDelta" />
         </Grid>
     </Border>
 </Window>

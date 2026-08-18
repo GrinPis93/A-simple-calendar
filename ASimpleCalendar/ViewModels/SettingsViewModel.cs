@@ -25,6 +25,9 @@ public partial class SettingsViewModel : ObservableObject
     private ThemeOption _selectedThemeOption = ThemeOptions[0];
 
     [ObservableProperty]
+    private AccentOption _selectedAccent = AccentColorPalette.Items[0];
+
+    [ObservableProperty]
     private bool _clockEnabled;
 
     [ObservableProperty]
@@ -59,6 +62,8 @@ public partial class SettingsViewModel : ObservableObject
 
         var mode = ThemeHelper.Parse(settings.Get("theme"));
         _selectedThemeOption = ThemeOptions.First(o => o.Value == mode);
+        var accentHex = settings.Get("accent") ?? string.Empty;
+        _selectedAccent = AccentColorPalette.Items.FirstOrDefault(a => a.Hex == accentHex) ?? AccentColorPalette.Items[0];
         _clockEnabled = widgets.IsClockOpen;
         _calendarEnabled = widgets.IsCalendarOpen;
         _tasksEnabled = widgets.IsTasksOpen;
@@ -98,10 +103,19 @@ public partial class SettingsViewModel : ObservableObject
 
     public IReadOnlyList<ThemeOption> ThemeChoices => ThemeOptions;
 
+    public IReadOnlyList<AccentOption> AccentChoices => AccentColorPalette.Items;
+
     partial void OnSelectedThemeOptionChanged(ThemeOption value)
     {
         ThemeHelper.Apply(value.Value);
         _settings.Set("theme", ThemeHelper.ToString(value.Value));
+        ThemeHelper.ApplyAccent(SelectedAccent.Hex);
+    }
+
+    partial void OnSelectedAccentChanged(AccentOption value)
+    {
+        ThemeHelper.ApplyAccent(value.Hex);
+        _settings.Set("accent", value.Hex);
     }
 
     partial void OnClockEnabledChanged(bool value) => _widgets.ToggleClock();

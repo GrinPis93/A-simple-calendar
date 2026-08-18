@@ -17,6 +17,24 @@ public static class ThemeHelper
         ApplicationThemeManager.Apply(theme);
     }
 
+    public static void ApplyAccent(string? hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex))
+        {
+            return;
+        }
+
+        try
+        {
+            var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex);
+            ApplicationAccentColorManager.Apply(color, ApplicationThemeManager.GetAppTheme());
+        }
+        catch
+        {
+            // некорректный цвет — игнорируем
+        }
+    }
+
     public static ThemeMode Parse(string? value) => value switch
     {
         "light" => ThemeMode.Light,

@@ -1,5 +1,5 @@
+using System.Globalization;
 using System.Windows;
-using System.Windows.Media;
 using ASimpleCalendar.Data;
 using ASimpleCalendar.Widgets;
 
@@ -36,11 +36,12 @@ public class WidgetService
         }
 
         _clock = new ClockWidget();
-        ApplyTo(_clock);
+        ApplyTo(_clock, "widget.clock");
         ApplyPosition(_clock, "widget.clock");
         _clock.Closed += (_, _) =>
         {
             SavePosition(_clock, "widget.clock");
+            SaveSize(_clock, "widget.clock");
             _clock = null;
         };
         _clock.Show();
@@ -55,11 +56,12 @@ public class WidgetService
         }
 
         _calendar = new MiniCalendarWidget();
-        ApplyTo(_calendar);
+        ApplyTo(_calendar, "widget.calendar");
         ApplyPosition(_calendar, "widget.calendar");
         _calendar.Closed += (_, _) =>
         {
             SavePosition(_calendar, "widget.calendar");
+            SaveSize(_calendar, "widget.calendar");
             _calendar = null;
         };
         _calendar.Show();
@@ -74,11 +76,12 @@ public class WidgetService
         }
 
         _tasks = new TasksWidget();
-        ApplyTo(_tasks);
+        ApplyTo(_tasks, "widget.tasks");
         ApplyPosition(_tasks, "widget.tasks");
         _tasks.Closed += (_, _) =>
         {
             SavePosition(_tasks, "widget.tasks");
+            SaveSize(_tasks, "widget.tasks");
             _tasks = null;
         };
         _tasks.Show();
@@ -86,12 +89,37 @@ public class WidgetService
 
     public void ApplySettings()
     {
-        ApplyTo(_clock);
-        ApplyTo(_calendar);
-        ApplyTo(_tasks);
+        ApplySettingsTo(_clock, "widget.clock");
+        ApplySettingsTo(_calendar, "widget.calendar");
+        ApplySettingsTo(_tasks, "widget.tasks");
     }
 
-    private void ApplyTo(Window? window)
+    private void ApplyTo(Window window, string key)
+    {
+        window.Opacity = Opacity;
+        window.Topmost = Topmost;
+
+        var savedWidth = ReadDouble(key + ".width", 0);
+        var savedHeight = ReadDouble(key + ".height", 0);
+
+        if (savedWidth >= 100 && savedHeight >= 80)
+        {
+            window.Width = savedWidth;
+            window.Height = savedHeight;
+        }
+        else
+        {
+            window.Width = BaseWidth(window) * Scale;
+            window.Height = BaseHeight(window) * Scale;
+        }
+
+        if (window is IWidget widget)
+        {
+            widget.LockDrag = Locked;
+        }
+    }
+
+    private void ApplySettingsTo(Window? window, string key)
     {
         if (window is null)
         {
@@ -100,22 +128,29 @@ public class WidgetService
 
         window.Opacity = Opacity;
         window.Topmost = Topmost;
-        window.LayoutTransform = new ScaleTransform(Scale, Scale);
+        window.Width = BaseWidth(window) * Scale;
+        window.Height = BaseHeight(window) * Scale;
 
         if (window is IWidget widget)
         {
             widget.LockDrag = Locked;
         }
+
+        SaveSize(window, key);
     }
+
+    private static double BaseWidth(Window window) => window is ClockWidget ? 250 : 300;
+
+    private static double BaseHeight(Window window) => window is ClockWidget ? 130 : 330;
 
     private void ApplyPosition(Window window, string key)
     {
-        var culture = System.Globalization.CultureInfo.InvariantCulture;
+        var culture = CultureInfo.InvariantCulture;
         var leftText = _settings.Get(key + ".left");
         var topText = _settings.Get(key + ".top");
 
-        if (double.TryParse(leftText, System.Globalization.NumberStyles.Any, culture, out var left) &&
-            double.TryParse(topText, System.Globalization.NumberStyles.Any, culture, out var top) &&
+        if (double.TryParse(leftText, NumberStyles.Any, culture, out var left) &&
+            double.TryParse(topText, NumberStyles.Any, culture, out var top) &&
             left >= SystemParameters.VirtualScreenLeft &&
             top >= SystemParameters.VirtualScreenTop)
         {
@@ -126,16 +161,23 @@ public class WidgetService
 
     private void SavePosition(Window window, string key)
     {
-        var culture = System.Globalization.CultureInfo.InvariantCulture;
+        var culture = CultureInfo.InvariantCulture;
         _settings.Set(key + ".left", window.Left.ToString(culture));
         _settings.Set(key + ".top", window.Top.ToString(culture));
+    }
+
+    private void SaveSize(Window window, string key)
+    {
+        var culture = CultureInfo.InvariantCulture;
+        _settings.Set(key + ".width", window.Width.ToString(culture));
+        _settings.Set(key + ".height", window.Height.ToString(culture));
     }
 
     private double ReadDouble(string key, double fallback)
     {
         var value = _settings.Get(key);
         return value is not null &&
-               double.TryParse(value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsed)
+               double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)
             ? parsed
             : fallback;
     }

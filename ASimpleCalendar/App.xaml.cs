@@ -65,6 +65,7 @@ public partial class App : Application
 
         var settings = Services.GetRequiredService<ISettingsRepository>();
         ThemeHelper.Apply(ThemeHelper.Parse(settings.Get("theme")));
+        ThemeHelper.ApplyAccent(settings.Get("accent"));
 
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
@@ -106,6 +107,7 @@ public partial class App : Application
         if (ThemeHelper.Parse(settings.Get("theme")) == ThemeMode.Auto)
         {
             ThemeHelper.Apply(ThemeMode.Auto);
+            ThemeHelper.ApplyAccent(settings.Get("accent"));
         }
     }
 

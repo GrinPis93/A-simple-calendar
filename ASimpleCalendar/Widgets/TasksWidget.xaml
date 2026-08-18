@@ -54,6 +54,15 @@
             <ScrollViewer Grid.Row="1" Margin="0,12,0,0" VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="ItemsPanel" />
             </ScrollViewer>
+
+            <Thumb Width="14"
+                   Height="14"
+                   Grid.RowSpan="2"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Cursor="SizeNWSE"
+                   Background="Transparent"
+                   DragDelta="ResizeGrip_DragDelta" />
         </Grid>
     </Border>
 </Window>

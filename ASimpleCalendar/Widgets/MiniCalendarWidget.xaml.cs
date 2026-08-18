@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -94,4 +95,19 @@ public partial class MiniCalendarWidget : Window, IWidget
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void ResizeGrip_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        var newWidth = Width + e.HorizontalChange;
+        var newHeight = Height + e.VerticalChange;
+        if (newWidth >= 160)
+        {
+            Width = newWidth;
+        }
+
+        if (newHeight >= 160)
+        {
+            Height = newHeight;
+        }
+    }
 }

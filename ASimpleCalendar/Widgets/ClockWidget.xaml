@@ -40,6 +40,13 @@
                            HorizontalAlignment="Center"
                            Margin="0,4,0,0" />
             </StackPanel>
+            <Thumb Width="14"
+                   Height="14"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Cursor="SizeNWSE"
+                   Background="Transparent"
+                   DragDelta="ResizeGrip_DragDelta" />
         </Grid>
     </Border>
 </Window>
