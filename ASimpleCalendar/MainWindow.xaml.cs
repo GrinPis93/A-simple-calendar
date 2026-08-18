@@ -1,10 +1,13 @@
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ASimpleCalendar.Data;
 using ASimpleCalendar.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
 
 namespace ASimpleCalendar;
@@ -16,6 +19,8 @@ public partial class MainWindow : FluentWindow
     public MainWindow()
     {
         InitializeComponent();
+
+        LoadWindowBounds();
 
         _pages["calendar"] = new CalendarView();
         _pages["notes"] = new NotesView();
@@ -84,6 +89,7 @@ public partial class MainWindow : FluentWindow
 
     protected override void OnClosing(CancelEventArgs e)
     {
+        SaveWindowBounds();
         base.OnClosing(e);
 
         if (!App.IsShuttingDown)
@@ -91,5 +97,48 @@ public partial class MainWindow : FluentWindow
             e.Cancel = true;
             Hide();
         }
+    }
+
+    private void LoadWindowBounds()
+    {
+        var settings = App.Services.GetRequiredService<ISettingsRepository>();
+        var culture = CultureInfo.InvariantCulture;
+
+        if (double.TryParse(settings.Get("window.width"), NumberStyles.Any, culture, out var width) && width >= MinWidth)
+        {
+            Width = width;
+        }
+
+        if (double.TryParse(settings.Get("window.height"), NumberStyles.Any, culture, out var height) && height >= MinHeight)
+        {
+            Height = height;
+        }
+
+        if (double.TryParse(settings.Get("window.left"), NumberStyles.Any, culture, out var left) &&
+            double.TryParse(settings.Get("window.top"), NumberStyles.Any, culture, out var top) &&
+            left >= SystemParameters.VirtualScreen.Left &&
+            top >= SystemParameters.VirtualScreen.Top &&
+            left <= SystemParameters.VirtualScreen.Right - 100 &&
+            top <= SystemParameters.VirtualScreen.Bottom - 100)
+        {
+            Left = left;
+            Top = top;
+        }
+    }
+
+    private void SaveWindowBounds()
+    {
+        if (WindowState != WindowState.Normal)
+        {
+            return;
+        }
+
+        var settings = App.Services.GetRequiredService<ISettingsRepository>();
+        var culture = CultureInfo.InvariantCulture;
+
+        settings.Set("window.left", Left.ToString(culture));
+        settings.Set("window.top", Top.ToString(culture));
+        settings.Set("window.width", Width.ToString(culture));
+        settings.Set("window.height", Height.ToString(culture));
     }
 }

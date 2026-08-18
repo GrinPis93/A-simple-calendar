@@ -23,7 +23,11 @@ public class NotificationService
                 .AddButton(new ToastButton()
                     .SetContent("Отложить на 10 минут")
                     .AddArgument("action", "snooze")
-                    .AddArgument("id", reminderId.ToString()))
+                    .AddArgument("minutes", "10"))
+                .AddButton(new ToastButton()
+                    .SetContent("Отложить на час")
+                    .AddArgument("action", "snooze")
+                    .AddArgument("minutes", "60"))
                 .Show();
         }
         catch
@@ -41,10 +45,15 @@ public class NotificationService
             args.TryGetValue("id", out var idText) &&
             int.TryParse(idText, out var id))
         {
+            var minutes = args.TryGetValue("minutes", out var minutesText) &&
+                          int.TryParse(minutesText, out var parsed)
+                ? parsed
+                : 10;
+
             var reminder = _reminders.GetById(id);
             if (reminder is not null)
             {
-                reminder.RemindAt = DateTime.Now.AddMinutes(10);
+                reminder.RemindAt = DateTime.Now.AddMinutes(minutes);
                 _reminders.Update(reminder);
             }
         }

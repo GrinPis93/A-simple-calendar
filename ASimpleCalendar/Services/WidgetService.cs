@@ -37,7 +37,12 @@ public class WidgetService
 
         _clock = new ClockWidget();
         ApplyTo(_clock);
-        _clock.Closed += (_, _) => _clock = null;
+        ApplyPosition(_clock, "widget.clock");
+        _clock.Closed += (_, _) =>
+        {
+            SavePosition(_clock, "widget.clock");
+            _clock = null;
+        };
         _clock.Show();
     }
 
@@ -51,7 +56,12 @@ public class WidgetService
 
         _calendar = new MiniCalendarWidget();
         ApplyTo(_calendar);
-        _calendar.Closed += (_, _) => _calendar = null;
+        ApplyPosition(_calendar, "widget.calendar");
+        _calendar.Closed += (_, _) =>
+        {
+            SavePosition(_calendar, "widget.calendar");
+            _calendar = null;
+        };
         _calendar.Show();
     }
 
@@ -65,7 +75,12 @@ public class WidgetService
 
         _tasks = new TasksWidget();
         ApplyTo(_tasks);
-        _tasks.Closed += (_, _) => _tasks = null;
+        ApplyPosition(_tasks, "widget.tasks");
+        _tasks.Closed += (_, _) =>
+        {
+            SavePosition(_tasks, "widget.tasks");
+            _tasks = null;
+        };
         _tasks.Show();
     }
 
@@ -91,6 +106,29 @@ public class WidgetService
         {
             widget.LockDrag = Locked;
         }
+    }
+
+    private void ApplyPosition(Window window, string key)
+    {
+        var culture = System.Globalization.CultureInfo.InvariantCulture;
+        var leftText = _settings.Get(key + ".left");
+        var topText = _settings.Get(key + ".top");
+
+        if (double.TryParse(leftText, System.Globalization.NumberStyles.Any, culture, out var left) &&
+            double.TryParse(topText, System.Globalization.NumberStyles.Any, culture, out var top) &&
+            left >= SystemParameters.VirtualScreen.Left &&
+            top >= SystemParameters.VirtualScreen.Top)
+        {
+            window.Left = left;
+            window.Top = top;
+        }
+    }
+
+    private void SavePosition(Window window, string key)
+    {
+        var culture = System.Globalization.CultureInfo.InvariantCulture;
+        _settings.Set(key + ".left", window.Left.ToString(culture));
+        _settings.Set(key + ".top", window.Top.ToString(culture));
     }
 
     private double ReadDouble(string key, double fallback)

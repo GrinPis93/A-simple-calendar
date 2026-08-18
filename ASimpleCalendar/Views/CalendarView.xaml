@@ -191,9 +191,21 @@
                                     Background="{DynamicResource ControlFillColorDefaultBrush}">
                                 <StackPanel>
                                     <TextBlock Text="{Binding DayTitle}"
-                                               FontWeight="SemiBold"
                                                FontSize="12"
-                                               HorizontalAlignment="Center" />
+                                               HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="Normal" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <ItemsControl Margin="0,6,0,0"
                                                   ItemsSource="{Binding Events}"
                                                   ItemTemplate="{StaticResource EventRowTemplate}" />
